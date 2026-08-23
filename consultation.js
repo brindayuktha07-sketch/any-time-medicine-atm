@@ -4,8 +4,8 @@ consultationForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
     const consultation = {
-        name: localStorage.getItem("patientName"),
-        age: localStorage.getItem("patientAge"),
+        name: localStorage.getItem("patientName") || "Patient",
+        age: localStorage.getItem("patientAge") || "-",
 
         symptoms: document.getElementById("symptoms").value,
         medications: document.getElementById("medications").value,
@@ -20,31 +20,63 @@ consultationForm.addEventListener("submit", async function (event) {
     };
 
     try {
+
         const response = await fetch("/consultation", {
             method: "POST",
+
             headers: {
                 "Content-Type": "application/json"
             },
+
             body: JSON.stringify(consultation)
         });
 
-        const result = await response.json();
+        const data = await response.json();
 
-        if (result.success) {
-            // Save the consultation ID so the patient can track it
-            localStorage.setItem(
-                "consultationId",
-                result.consultation.id
-            );
-
-            // Go to waiting room
-            window.location.href = "waiting.html";
-        } else {
+        if (!data.success) {
             alert("Could not send consultation.");
+            return;
         }
 
+        // Save the consultation ID locally
+        // so this device knows which consultation belongs to it.
+        localStorage.setItem(
+            "consultationId",
+            data.consultation.id
+        );
+
+        localStorage.setItem(
+            "currentConsultation",
+            JSON.stringify(data.consultation)
+        );
+
+        // Go to waiting screen
+        window.location.href = "waiting.html";
+
     } catch (error) {
-        console.error(error);
-        alert("Cannot connect to the server.");
+
+        console.error("Error sending consultation:", error);
+
+        alert(
+            "Could not connect to the server. Please try again."
+        );
     }
 });
+
+
+// Display patient information
+const patientNameDisplay =
+    document.getElementById("patientName");
+
+const patientAgeDisplay =
+    document.getElementById("patientAge");
+
+if (patientNameDisplay) {
+    patientNameDisplay.textContent =
+        localStorage.getItem("patientName") || "Patient";
+}
+
+if (patientAgeDisplay) {
+    patientAgeDisplay.textContent =
+        localStorage.getItem("patientAge") || "-";
+}
