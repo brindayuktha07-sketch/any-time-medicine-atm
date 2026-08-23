@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>New Consultation - Any Time Medicine ATM</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="dashboard-header">
+        <h1>Any Time Medicine ATM</h1>
+
+        <button onclick="history.back()">
+            ← Back
+        </button>
+    </header>
+
+
+    <main class="consultation-page">
+
+        <section class="consultation-card">
+
+            <h2>New Consultation</h2>
+
+            <p class="subtitle">
+                Tell the doctor about your current health concern.
+            </p>
+
+
+            <form id="consultationForm">
+
+                <div class="patient-info">
+    <div>
+        <span>Patient</span>
+        <strong id="patientName">Loading...</strong>
+    </div>
+
+    <div>
+        <span>Age</span>
+        <strong id="patientAge">Loading...</strong>
+    </div>
+</div>
+
+
+                <label for="symptoms">
+                    What are your symptoms?
+                </label>
+
+                <textarea
+                    id="symptoms"
+                    rows="5"
+                    placeholder="Describe your symptoms..."
+                    required
+                ></textarea>
+
+
+                <label for="medications">
+                    Current medications
+                </label>
+
+                <textarea
+                    id="medications"
+                    rows="3"
+                    placeholder="Enter any medicines you currently take..."
+                ></textarea>
+
+
+                <label for="allergies">
+                    Allergies
+                </label>
+
+                <input
+                    type="text"
+                    id="allergies"
+                    placeholder="Enter any known allergies"
+                >
+
+
+                <h3>Basic Vitals</h3>
+
+
+                <div class="vitals-grid">
+
+                    <div>
+                        <label for="temperature">
+                            Temperature (°C)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="temperature"
+                            step="0.1"
+                            placeholder="e.g. 37.0"
+                        >
+                    </div>
+
+
+                    <div>
+                        <label for="heartRate">
+                            Heart Rate (BPM)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="heartRate"
+                            placeholder="e.g. 75"
+                        >
+                    </div>
+
+
+                    <div>
+                        <label for="spo2">
+                            SpO₂ (%)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="spo2"
+                            placeholder="e.g. 98"
+                        >
+                    </div>
+
+
+                    <div>
+                        <label for="bloodPressure">
+                            Blood Pressure
+                        </label>
+
+                        <input
+                            type="text"
+                            id="bloodPressure"
+                            placeholder="e.g. 120/80"
+                        >
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+                    🩺 Request Doctor Consultation
+                </button>
+
+            </form>
+
+        </section>
+
+    </main>
+
+
+    <script src="consultation.js"></script>
+
+</body>
+
+</html>

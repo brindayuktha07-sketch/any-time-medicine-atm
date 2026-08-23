@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Registration - Any Time Medicine ATM</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="login-page">
+
+        <section class="welcome-card">
+
+            <h1>Patient Registration</h1>
+
+            <p class="subtitle">
+                Register this device for patient access.
+            </p>
+
+            <form id="patientForm">
+
+                <input
+                    type="text"
+                    id="patientName"
+                    placeholder="Full Name"
+                    required
+                >
+
+                <input
+                    type="number"
+                    id="patientAge"
+                    placeholder="Age"
+                    min="1"
+                    max="120"
+                    required
+                >
+
+                <button type="submit">
+                    Register as Patient
+                </button>
+
+            </form>
+
+        </section>
+
+    </main>
+
+    <script src="patient.js"></script>
+
+</body>
+</html>

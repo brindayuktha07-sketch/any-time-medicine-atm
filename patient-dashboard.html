@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Patient Dashboard - Any Time Medicine ATM</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="dashboard-header">
+
+        <h1>Any Time Medicine ATM</h1>
+
+        <div class="accessibility-controls">
+            <button id="audioGuideBtn">🔊 Audio Guide</button>
+            <button id="largeTextBtn">🔠 Large Text</button>
+            <button id="contrastBtn">◐ High Contrast</button>
+        </div>
+
+    </header>
+
+
+    <main class="dashboard">
+
+        <section class="dashboard-welcome">
+
+            <h2>Welcome, <span id="patientName"></span> 👋</h2>
+
+            <p>
+                What would you like to do today?
+            </p>
+
+        </section>
+
+
+        <section class="dashboard-grid">
+
+            <div class="dashboard-card">
+
+                <h3>🩺 New Consultation</h3>
+
+                <p>
+                    Connect with a doctor through a secure video consultation.
+                </p>
+
+                <button id="consultationBtn">
+                    Start Consultation
+                </button>
+
+            </div>
+
+
+            <div class="dashboard-card">
+
+                <h3>📋 Medical History</h3>
+
+                <p>
+                    View your previous consultations and medical records.
+                </p>
+
+                <button id="historyBtn">
+                    View History
+                </button>
+
+            </div>
+
+
+            <div class="dashboard-card">
+
+                <h3>💊 Medicine</h3>
+
+                <p>
+                    View medicines prescribed during your consultations.
+                </p>
+
+                <button id="medicineBtn">
+                    View Medicines
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script>
+
+        // Display the registered patient's name
+        const patientName = localStorage.getItem("patientName");
+
+        document.getElementById("patientName").textContent =
+            patientName || "Patient";
+
+
+        // Start consultation
+        document.getElementById("consultationBtn")
+            .addEventListener("click", function () {
+
+                window.location.href = "consultation.html";
+
+            });
+
+
+        // Medical history
+        document.getElementById("historyBtn")
+            .addEventListener("click", function () {
+
+                alert("Medical History will be available here.");
+
+            });
+
+
+        // Medicine
+        document.getElementById("medicineBtn")
+            .addEventListener("click", function () {
+
+                alert("Your prescribed medicines will appear here.");
+
+            });
+
+    </script>
+
+</body>
+
+</html>

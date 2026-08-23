@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Doctor Dashboard - Any Time Medicine ATM</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="dashboard-header">
+
+        <h1>Any Time Medicine ATM</h1>
+
+        <div class="accessibility-controls">
+            <button id="largeTextBtn">🔠 Large Text</button>
+            <button id="contrastBtn">◐ High Contrast</button>
+        </div>
+
+    </header>
+
+
+    <main class="dashboard">
+
+        <section class="dashboard-welcome">
+
+            <h2>Doctor Dashboard</h2>
+
+            <p>
+                Welcome, Dr. <span id="doctorName"></span>
+            </p>
+
+        </section>
+
+
+        <section id="waitingArea">
+
+            <div class="dashboard-card">
+
+                <h3>🩺 Incoming Consultation</h3>
+
+                <div id="patientRequest">
+
+                    <p>
+                        Checking for patient requests...
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="doctor-dashboard.js"></script>
+
+</body>
+
+</html>
