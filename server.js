@@ -9,10 +9,10 @@ const server = http.createServer(app);
 app.use(cors());
 app.use(express.json());
 
-// Serve the Any Time Medicine ATM website
-app.use(express.static(path.join(__dirname, "..")));
+// Serve the website files from this folder
+app.use(express.static(__dirname));
 
-// Store active consultations while the server is running
+// Store active consultations while server is running
 let consultations = [];
 
 
@@ -21,9 +21,7 @@ let consultations = [];
 ========================================= */
 
 app.get("/", (req, res) => {
-    res.sendFile(
-        path.join(__dirname, "..", "index.html")
-    );
+    res.sendFile(path.join(__dirname, "index.html"));
 });
 
 
@@ -55,20 +53,16 @@ app.post("/consultation", (req, res) => {
         createdAt: new Date().toISOString()
     };
 
-
     consultations.push(consultation);
-
 
     console.log(
         `New consultation from ${consultation.name}`
     );
 
-
     res.json({
         success: true,
         consultation: consultation
     });
-
 });
 
 
@@ -92,11 +86,9 @@ app.get("/consultations", (req, res) => {
 
 app.post("/consultation/:id/accept", (req, res) => {
 
-    const consultation =
-        consultations.find(
-            c => c.id == req.params.id
-        );
-
+    const consultation = consultations.find(
+        c => c.id == req.params.id
+    );
 
     if (!consultation) {
 
@@ -107,14 +99,11 @@ app.post("/consultation/:id/accept", (req, res) => {
 
     }
 
-
     consultation.status = "accepted";
-
 
     console.log(
         `Consultation ${consultation.id} accepted`
     );
-
 
     res.json({
         success: true,
@@ -127,10 +116,13 @@ app.post("/consultation/:id/accept", (req, res) => {
 /* =========================================
    SERVER
 ========================================= */
+
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, "0.0.0.0", () => {
+
     console.log(
         `Any Time Medicine ATM server running on port ${PORT}`
     );
+
 });
