@@ -15,164 +15,85 @@ async function checkForPatient() {
 
         const data = await response.json();
 
-        if (!data.success || data.consultations.length === 0) {
+        const consultations = data.consultations || [];
 
-            patientRequest.innerHTML = `
-                <div class="empty-state">
-                    <h3>No patients waiting</h3>
-                    <p>New consultation requests will appear here.</p>
-                </div>
-            `;
-
-            return;
-        }
-
-
-        // Get the first waiting patient
-        const consultation =
-            data.consultations.find(
-                c => c.status === "waiting"
+        // Only show consultations that are waiting
+        const waitingConsultation =
+            consultations.find(
+                consultation =>
+                    consultation.status === "waiting"
             );
 
 
-        if (!consultation) {
+        if (!waitingConsultation) {
 
             patientRequest.innerHTML = `
-                <div class="empty-state">
-                    <h3>No patients waiting</h3>
-                    <p>New consultation requests will appear here.</p>
-                </div>
+                <p>
+                    No patients are currently waiting.
+                </p>
             `;
 
             return;
         }
+
+
+        const consultation = waitingConsultation;
 
 
         patientRequest.innerHTML = `
 
-            <div class="patient-request-card">
+            <h3>Patient Request</h3>
 
-                <div class="request-header">
+            <p>
+                <strong>Name:</strong>
+                ${consultation.name}
+            </p>
 
-                    <div>
-                        <span class="request-label">
-                            NEW CONSULTATION
-                        </span>
+            <p>
+                <strong>Age:</strong>
+                ${consultation.age}
+            </p>
 
-                        <h3>
-                            Patient Request
-                        </h3>
-                    </div>
+            <p>
+                <strong>Symptoms:</strong>
+                ${consultation.symptoms}
+            </p>
 
-                    <span class="status-badge">
-                        Waiting
-                    </span>
+            <p>
+                <strong>Current Medications:</strong>
+                ${consultation.medications || "None reported"}
+            </p>
 
-                </div>
+            <p>
+                <strong>Allergies:</strong>
+                ${consultation.allergies || "None reported"}
+            </p>
 
+            <h4>Vitals</h4>
 
-                <div class="patient-info">
+            <p>
+                Temperature:
+                ${consultation.vitals.temperature || "Not provided"} °C
+            </p>
 
-                    <div>
-                        <span>Patient</span>
+            <p>
+                Heart Rate:
+                ${consultation.vitals.heartRate || "Not provided"} BPM
+            </p>
 
-                        <strong>
-                            ${consultation.name}
-                        </strong>
-                    </div>
+            <p>
+                SpO₂:
+                ${consultation.vitals.spo2 || "Not provided"} %
+            </p>
 
+            <p>
+                Blood Pressure:
+                ${consultation.vitals.bloodPressure || "Not provided"}
+            </p>
 
-                    <div>
-                        <span>Age</span>
-
-                        <strong>
-                            ${consultation.age}
-                        </strong>
-                    </div>
-
-                </div>
-
-
-                <div class="medical-section">
-
-                    <h4>Symptoms</h4>
-
-                    <p>
-                        ${consultation.symptoms}
-                    </p>
-
-                </div>
-
-
-                <div class="medical-section">
-
-                    <h4>Current Medications</h4>
-
-                    <p>
-                        ${consultation.medications || "None reported"}
-                    </p>
-
-                </div>
-
-
-                <div class="medical-section">
-
-                    <h4>Allergies</h4>
-
-                    <p>
-                        ${consultation.allergies || "None reported"}
-                    </p>
-
-                </div>
-
-
-                <div class="medical-section">
-
-                    <h4>Basic Vitals</h4>
-
-                    <div class="vitals-grid">
-
-                        <div>
-                            <span>Temperature</span>
-                            <strong>
-                                ${consultation.vitals.temperature || "—"} °C
-                            </strong>
-                        </div>
-
-
-                        <div>
-                            <span>Heart Rate</span>
-                            <strong>
-                                ${consultation.vitals.heartRate || "—"} BPM
-                            </strong>
-                        </div>
-
-
-                        <div>
-                            <span>SpO₂</span>
-                            <strong>
-                                ${consultation.vitals.spo2 || "—"} %
-                            </strong>
-                        </div>
-
-
-                        <div>
-                            <span>Blood Pressure</span>
-                            <strong>
-                                ${consultation.vitals.bloodPressure || "—"}
-                            </strong>
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <button id="acceptBtn" class="accept-button">
-                    Accept & Start Consultation
-                </button>
-
-            </div>
+            <button id="acceptBtn">
+                Accept Consultation
+            </button>
         `;
 
 
@@ -189,42 +110,45 @@ async function checkForPatient() {
                         }
                     );
 
-                    const result = await response.json();
+                    const data = await response.json();
 
 
-                    if (result.success) {
-
-                        localStorage.setItem(
-                            "consultationStatus",
-                            "accepted"
-                        );
-
-                        localStorage.setItem(
-                            "activeConsultationId",
-                            consultation.id
-                        );
-
-
-                        window.location.href =
-                            "video-call.html";
-
-                    } else {
+                    if (!data.success) {
 
                         alert(
-                            result.message ||
                             "Could not accept consultation."
                         );
 
+                        return;
                     }
+
+
+                    // Store accepted consultation locally
+                    localStorage.setItem(
+                        "currentConsultation",
+                        JSON.stringify(data.consultation)
+                    );
+
+                    localStorage.setItem(
+                        "consultationStatus",
+                        "accepted"
+                    );
+
+
+                    // Open video call
+                    window.location.href =
+                        "video-call.html";
 
                 } catch (error) {
 
-                    console.error(error);
-
-                    alert(
-                        "Cannot connect to the server."
+                    console.error(
+                        "Error accepting consultation:",
+                        error
                     );
 
+                    alert(
+                        "Could not connect to the server."
+                    );
                 }
 
             });
@@ -232,19 +156,17 @@ async function checkForPatient() {
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Error checking consultations:",
+            error
+        );
 
         patientRequest.innerHTML = `
-            <div class="empty-state">
-                <h3>Unable to connect</h3>
-                <p>
-                    Please check that the ATM server is running.
-                </p>
-            </div>
+            <p>
+                Unable to connect to server.
+            </p>
         `;
-
     }
-
 }
 
 
