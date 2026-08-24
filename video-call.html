@@ -19,83 +19,158 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: #111;
+            background: #111827;
             color: white;
+        }
+
+        header {
+            padding: 20px;
             text-align: center;
+            background: #1f2937;
         }
 
-        h1 {
-            margin: 25px 10px 10px;
-        }
-
-        h2 {
-            margin: 5px 10px 15px;
+        header h1 {
+            margin: 0 0 8px;
         }
 
         #role {
-            font-size: 22px;
+            font-size: 18px;
             font-weight: bold;
-            margin: 10px;
         }
 
         #status {
-            margin: 15px;
+            text-align: center;
+            padding: 12px;
             color: #00ff88;
-            font-size: 17px;
         }
 
-        #videos {
+        .call-container {
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 25px;
-            flex-wrap: wrap;
+            gap: 20px;
             padding: 20px;
-            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .video-section {
+            flex: 2;
+            min-width: 600px;
+        }
+
+        .videos {
+            display: flex;
+            gap: 20px;
         }
 
         .video-box {
-            width: 48%;
-            min-width: 350px;
-            max-width: 800px;
+            flex: 1;
         }
 
         .video-box h3 {
-            margin: 5px 0 12px;
-            font-size: 20px;
+            text-align: center;
+            margin: 8px;
         }
 
         video {
             width: 100%;
-            height: 450px;
+            height: 380px;
             object-fit: cover;
-            background: #222;
+            background: #000;
             border-radius: 15px;
-            border: 2px solid #333;
+        }
+
+        .prescription-section {
+            flex: 1;
+            min-width: 320px;
+            background: white;
+            color: #1f2937;
+            padding: 25px;
+            border-radius: 15px;
+        }
+
+        .prescription-section h2 {
+            margin-top: 0;
+        }
+
+        .medicine-row {
+            border: 1px solid #d1d5db;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+
+        .medicine-row input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+            box-sizing: border-box;
         }
 
         button {
-            padding: 13px 28px;
-            margin: 10px;
+            padding: 12px 20px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
+            margin: 5px;
         }
 
-        button:hover {
-            opacity: 0.85;
+        .primary-btn {
+            background: #2563eb;
+            color: white;
         }
 
-        @media (max-width: 800px) {
+        .danger-btn {
+            background: #dc2626;
+            color: white;
+        }
 
-            .video-box {
-                width: 95%;
-                min-width: 0;
+        .add-btn {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        .dispense-btn {
+            width: 100%;
+            background: #16a34a;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        #patientPrescription {
+            display: none;
+        }
+
+        .medicine-card {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .medicine-card strong {
+            font-size: 17px;
+        }
+
+        @media (max-width: 900px) {
+
+            .video-section {
+                min-width: 100%;
+            }
+
+            .videos {
+                flex-direction: column;
             }
 
             video {
                 height: 300px;
+            }
+
+            .prescription-section {
+                min-width: 100%;
             }
 
         }
@@ -107,75 +182,196 @@
 
 <body>
 
+<header>
+
     <h1>Any Time Medicine</h1>
 
     <div id="role"></div>
 
-    <h2>Video Consultation</h2>
-
-    <div id="status">
-        Connecting...
-    </div>
+</header>
 
 
-    <div id="videos">
+<div id="status">
+    Connecting...
+</div>
 
-        <!-- YOUR VIDEO -->
 
-        <div class="video-box">
+<div class="call-container">
 
-            <h3>You</h3>
 
-            <video
-                id="localVideo"
-                autoplay
-                muted
-                playsinline>
-            </video>
+    <!-- =========================
+         VIDEO
+    ========================== -->
+
+    <div class="video-section">
+
+        <div class="videos">
+
+
+            <div class="video-box">
+
+                <h3>You</h3>
+
+                <video
+                    id="localVideo"
+                    autoplay
+                    muted
+                    playsinline>
+                </video>
+
+            </div>
+
+
+            <div class="video-box">
+
+                <h3 id="otherRole">
+                    Other Participant
+                </h3>
+
+                <video
+                    id="remoteVideo"
+                    autoplay
+                    playsinline>
+                </video>
+
+            </div>
 
         </div>
 
 
-        <!-- OTHER PERSON'S VIDEO -->
+        <div style="text-align:center; margin-top:20px;">
 
-        <div class="video-box">
+            <button
+                class="primary-btn"
+                onclick="startCall()">
 
-            <h3 id="otherRole">
-                Other Participant
-            </h3>
+                🎥 Start Call
 
-            <video
-                id="remoteVideo"
-                autoplay
-                playsinline>
-            </video>
+            </button>
+
+
+            <button
+                class="danger-btn"
+                onclick="endCall()">
+
+                ❌ End Call
+
+            </button>
 
         </div>
 
     </div>
 
 
-    <div>
+    <!-- =========================
+         DOCTOR PRESCRIPTION
+    ========================== -->
 
-        <button onclick="startCall()">
-            🎥 Start Call
+    <div
+        class="prescription-section"
+        id="doctorPrescription">
+
+        <h2>💊 Prescription</h2>
+
+        <p>
+            Add the medicines to be given
+            to the patient.
+        </p>
+
+
+        <div id="medicineList">
+
+            <div class="medicine-row">
+
+                <input
+                    type="text"
+                    class="medicineName"
+                    placeholder="Medicine name">
+
+                <input
+                    type="text"
+                    class="medicineDosage"
+                    placeholder="Dosage (e.g. 500 mg)">
+
+                <input
+                    type="number"
+                    class="medicineQuantity"
+                    placeholder="Quantity">
+
+                <input
+                    type="text"
+                    class="medicineInstructions"
+                    placeholder="Instructions">
+
+            </div>
+
+        </div>
+
+
+        <button
+            class="add-btn"
+            onclick="addMedicine()">
+
+            + Add Medicine
+
         </button>
 
-        <button onclick="endCall()">
-            ❌ End Call
+
+        <br>
+
+
+        <button
+            class="primary-btn"
+            onclick="savePrescription()">
+
+            Save Prescription
+
         </button>
 
     </div>
 
 
-    <!-- Socket.IO -->
+    <!-- =========================
+         PATIENT PRESCRIPTION
+    ========================== -->
 
-    <script src="/socket.io/socket.io.js"></script>
+    <div
+        class="prescription-section"
+        id="patientPrescription">
+
+        <h2>💊 Your Prescription</h2>
+
+        <div id="prescriptionList">
+
+            <p>
+                Waiting for doctor's prescription...
+            </p>
+
+        </div>
 
 
-    <!-- WebRTC -->
+        <button
+            class="dispense-btn"
+            onclick="dispenseMedicines()">
 
-    <script src="video-call.js"></script>
+            💊 DISPENSE MEDICINES
+
+        </button>
+
+    </div>
+
+
+</div>
+
+
+<!-- Socket.IO -->
+
+<script src="/socket.io/socket.io.js"></script>
+
+
+<!-- WebRTC + Prescription -->
+
+<script src="video-call.js"></script>
 
 
 </body>
