@@ -2,16 +2,12 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Any Time Medicine - Video Consultation</title>
 
     <style>
-
         body {
             margin: 0;
             font-family: Arial, sans-serif;
@@ -53,6 +49,10 @@
             color: #00ff88;
         }
 
+        #role {
+            font-size: 20px;
+            margin: 10px;
+        }
     </style>
 
 </head>
@@ -60,6 +60,8 @@
 <body>
 
     <h1>Any Time Medicine</h1>
+
+    <div id="role"></div>
 
     <h2>Video Consultation</h2>
 
@@ -71,6 +73,7 @@
 
         <div>
             <h3>You</h3>
+
             <video
                 id="localVideo"
                 autoplay
@@ -80,12 +83,17 @@
         </div>
 
         <div>
-            <h3>Doctor / Patient</h3>
+
+            <h3 id="otherRole">
+                Other Participant
+            </h3>
+
             <video
                 id="remoteVideo"
                 autoplay
                 playsinline>
             </video>
+
         </div>
 
     </div>
@@ -98,11 +106,7 @@
         End Call
     </button>
 
-
-    <!-- Socket.IO -->
     <script src="/socket.io/socket.io.js"></script>
-
-    <!-- Our WebRTC code -->
     <script src="video-call.js"></script>
 
 </body>
