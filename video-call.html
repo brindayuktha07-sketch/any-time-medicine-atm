@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Any Time Medicine - Video Consultation</title>
+
+    <style>
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: white;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 20px;
+        }
+
+        #videos {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+
+        video {
+            width: 45%;
+            max-width: 600px;
+            background: #222;
+            border-radius: 15px;
+        }
+
+        button {
+            padding: 12px 25px;
+            margin: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #status {
+            margin: 15px;
+            color: #00ff88;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <h1>Any Time Medicine</h1>
+
+    <h2>Video Consultation</h2>
+
+    <div id="status">
+        Connecting...
+    </div>
+
+    <div id="videos">
+
+        <div>
+            <h3>You</h3>
+            <video
+                id="localVideo"
+                autoplay
+                muted
+                playsinline>
+            </video>
+        </div>
+
+        <div>
+            <h3>Doctor / Patient</h3>
+            <video
+                id="remoteVideo"
+                autoplay
+                playsinline>
+            </video>
+        </div>
+
+    </div>
+
+    <button onclick="startCall()">
+        Start Call
+    </button>
+
+    <button onclick="endCall()">
+        End Call
+    </button>
+
+
+    <!-- Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
+
+    <!-- Our WebRTC code -->
+    <script src="video-call.js"></script>
+
+</body>
+
+</html>
