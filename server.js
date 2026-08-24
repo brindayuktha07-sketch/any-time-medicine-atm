@@ -2,17 +2,24 @@ const express = require("express");
 const http = require("http");
 const cors = require("cors");
 const path = require("path");
+const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
 
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
+
 app.use(cors());
 app.use(express.json());
 
-// Serve the website files from this folder
+// Serve website files
 app.use(express.static(__dirname));
 
-// Store active consultations while server is running
 let consultations = [];
 
 
@@ -86,9 +93,10 @@ app.get("/consultations", (req, res) => {
 
 app.post("/consultation/:id/accept", (req, res) => {
 
-    const consultation = consultations.find(
-        c => c.id == req.params.id
-    );
+    const consultation =
+        consultations.find(
+            c => c.id == req.params.id
+        );
 
     if (!consultation) {
 
@@ -108,6 +116,70 @@ app.post("/consultation/:id/accept", (req, res) => {
     res.json({
         success: true,
         consultation: consultation
+    });
+
+});
+
+
+/* =========================================
+   WEBRTC SIGNALING
+========================================= */
+
+io.on("connection", (socket) => {
+
+    console.log("User connected:", socket.id);
+
+
+    // User joins a video-call room
+    socket.on("join-room", (roomId) => {
+
+        socket.join(roomId);
+
+        console.log(
+            `${socket.id} joined room ${roomId}`
+        );
+
+        // Tell the other person that someone joined
+        socket.to(roomId).emit("user-joined", socket.id);
+
+    });
+
+
+    // Send WebRTC offer
+    socket.on("offer", ({ roomId, offer }) => {
+
+        socket.to(roomId).emit("offer", offer);
+
+    });
+
+
+    // Send WebRTC answer
+    socket.on("answer", ({ roomId, answer }) => {
+
+        socket.to(roomId).emit("answer", answer);
+
+    });
+
+
+    // Send ICE candidate
+    socket.on("ice-candidate", ({ roomId, candidate }) => {
+
+        socket.to(roomId).emit(
+            "ice-candidate",
+            candidate
+        );
+
+    });
+
+
+    // User leaves
+    socket.on("disconnect", () => {
+
+        console.log(
+            "User disconnected:",
+            socket.id
+        );
+
     });
 
 });
