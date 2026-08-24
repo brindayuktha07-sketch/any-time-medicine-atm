@@ -6,11 +6,6 @@ const statusText = document.getElementById("status");
 const roleText = document.getElementById("role");
 const otherRoleText = document.getElementById("otherRole");
 
-
-// =========================================
-// GET ROOM + ROLE
-// =========================================
-
 const params = new URLSearchParams(window.location.search);
 
 const roomId = params.get("room") || "test-room";
@@ -18,7 +13,7 @@ const role = params.get("role") || "patient";
 
 
 // =========================================
-// DISPLAY ROLE
+// ROLE
 // =========================================
 
 if (role === "doctor") {
@@ -35,13 +30,35 @@ if (role === "doctor") {
 
 
 // =========================================
+// SHOW CORRECT PRESCRIPTION PANEL
+// =========================================
+
+const doctorPrescription =
+    document.getElementById("doctorPrescription");
+
+const patientPrescription =
+    document.getElementById("patientPrescription");
+
+
+if (role === "doctor") {
+
+    doctorPrescription.style.display = "block";
+    patientPrescription.style.display = "none";
+
+} else {
+
+    doctorPrescription.style.display = "none";
+    patientPrescription.style.display = "block";
+
+}
+
+
+// =========================================
 // WEBRTC
 // =========================================
 
 let localStream = null;
 let peerConnection = null;
-
-let isCaller = false;
 
 const configuration = {
 
@@ -55,7 +72,7 @@ const configuration = {
 
 
 // =========================================
-// START CAMERA
+// START CALL
 // =========================================
 
 async function startCall() {
@@ -76,15 +93,11 @@ async function startCall() {
         statusText.textContent =
             "Camera ready. Waiting for other participant...";
 
-        // Join the room
         socket.emit("join-room", roomId);
 
     } catch (error) {
 
-        console.error(
-            "Camera error:",
-            error
-        );
+        console.error(error);
 
         statusText.textContent =
             "Camera or microphone permission denied.";
@@ -95,7 +108,7 @@ async function startCall() {
 
 
 // =========================================
-// CREATE PEER CONNECTION
+// PEER CONNECTION
 // =========================================
 
 function createPeerConnection() {
@@ -105,12 +118,9 @@ function createPeerConnection() {
     }
 
     peerConnection =
-        new RTCPeerConnection(
-            configuration
-        );
+        new RTCPeerConnection(configuration);
 
 
-    // Add local tracks
     localStream
         .getTracks()
         .forEach(track => {
@@ -123,31 +133,21 @@ function createPeerConnection() {
         });
 
 
-    // Receive remote video/audio
-    peerConnection.ontrack =
-        event => {
+    peerConnection.ontrack = event => {
 
-            console.log(
-                "Remote track received"
-            );
+        if (event.streams && event.streams[0]) {
 
-            if (
-                event.streams &&
-                event.streams[0]
-            ) {
+            remoteVideo.srcObject =
+                event.streams[0];
 
-                remoteVideo.srcObject =
-                    event.streams[0];
+            statusText.textContent =
+                "Connected 🎥";
 
-                statusText.textContent =
-                    "Connected 🎥";
+        }
 
-            }
-
-        };
+    };
 
 
-    // ICE candidates
     peerConnection.onicecandidate =
         event => {
 
@@ -166,7 +166,6 @@ function createPeerConnection() {
         };
 
 
-    // Connection status
     peerConnection.onconnectionstatechange =
         () => {
 
@@ -185,50 +184,20 @@ function createPeerConnection() {
 
             }
 
-            if (
-                peerConnection.connectionState ===
-                "disconnected"
-            ) {
-
-                statusText.textContent =
-                    "Connection interrupted.";
-
-            }
-
-            if (
-                peerConnection.connectionState ===
-                "failed"
-            ) {
-
-                statusText.textContent =
-                    "Connection failed.";
-
-            }
-
         };
 
 }
 
 
 // =========================================
-// SERVER SAYS ANOTHER USER JOINED
+// OTHER USER JOINED
 // =========================================
 
 socket.on(
     "user-joined",
     async () => {
 
-        console.log(
-            "Other participant joined"
-        );
-
-        statusText.textContent =
-            "Other participant joined. Connecting...";
-
-        isCaller = true;
-
         createPeerConnection();
-
 
         try {
 
@@ -238,7 +207,6 @@ socket.on(
             await peerConnection.setLocalDescription(
                 offer
             );
-
 
             socket.emit(
                 "offer",
@@ -269,15 +237,7 @@ socket.on(
     "offer",
     async offer => {
 
-        console.log(
-            "Offer received"
-        );
-
-        statusText.textContent =
-            "Incoming video call...";
-
         createPeerConnection();
-
 
         try {
 
@@ -285,15 +245,12 @@ socket.on(
                 new RTCSessionDescription(offer)
             );
 
-
             const answer =
                 await peerConnection.createAnswer();
-
 
             await peerConnection.setLocalDescription(
                 answer
             );
-
 
             socket.emit(
                 "answer",
@@ -324,10 +281,6 @@ socket.on(
     "answer",
     async answer => {
 
-        console.log(
-            "Answer received"
-        );
-
         try {
 
             await peerConnection.setRemoteDescription(
@@ -340,7 +293,7 @@ socket.on(
         } catch (error) {
 
             console.error(
-                "Answer connection error:",
+                "Answer error:",
                 error
             );
 
@@ -351,7 +304,7 @@ socket.on(
 
 
 // =========================================
-// RECEIVE ICE CANDIDATE
+// ICE CANDIDATES
 // =========================================
 
 socket.on(
@@ -374,7 +327,7 @@ socket.on(
         } catch (error) {
 
             console.error(
-                "ICE candidate error:",
+                "ICE error:",
                 error
             );
 
@@ -382,6 +335,364 @@ socket.on(
 
     }
 );
+
+
+// =========================================
+// ADD MEDICINE
+// =========================================
+
+function addMedicine() {
+
+    const medicineList =
+        document.getElementById("medicineList");
+
+    const row =
+        document.createElement("div");
+
+    row.className =
+        "medicine-row";
+
+    row.innerHTML = `
+
+        <input
+            type="text"
+            class="medicineName"
+            placeholder="Medicine name">
+
+        <input
+            type="text"
+            class="medicineDosage"
+            placeholder="Dosage (e.g. 500 mg)">
+
+        <input
+            type="number"
+            class="medicineQuantity"
+            placeholder="Quantity">
+
+        <input
+            type="text"
+            class="medicineInstructions"
+            placeholder="Instructions">
+
+    `;
+
+    medicineList.appendChild(row);
+
+}
+
+
+// =========================================
+// SAVE PRESCRIPTION
+// =========================================
+
+async function savePrescription() {
+
+    if (role !== "doctor") {
+        return;
+    }
+
+    const rows =
+        document.querySelectorAll(
+            ".medicine-row"
+        );
+
+    const prescription = [];
+
+
+    rows.forEach(row => {
+
+        const name =
+            row.querySelector(
+                ".medicineName"
+            ).value.trim();
+
+        const dosage =
+            row.querySelector(
+                ".medicineDosage"
+            ).value.trim();
+
+        const quantity =
+            row.querySelector(
+                ".medicineQuantity"
+            ).value;
+
+        const instructions =
+            row.querySelector(
+                ".medicineInstructions"
+            ).value.trim();
+
+
+        if (name) {
+
+            prescription.push({
+
+                name: name,
+
+                dosage: dosage,
+
+                quantity:
+                    Number(quantity) || 0,
+
+                instructions:
+                    instructions
+
+            });
+
+        }
+
+    });
+
+
+    if (prescription.length === 0) {
+
+        alert(
+            "Please add at least one medicine."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `/consultation/${roomId}/prescription`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        prescription:
+                            prescription
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!data.success) {
+
+            alert(
+                "Could not save prescription."
+            );
+
+            return;
+
+        }
+
+
+        alert(
+            "Prescription saved successfully."
+        );
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Could not connect to server."
+        );
+
+    }
+
+}
+
+
+// =========================================
+// PATIENT CHECKS PRESCRIPTION
+// =========================================
+
+async function checkPrescription() {
+
+    if (role !== "patient") {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch("/consultations");
+
+        const data =
+            await response.json();
+
+        const consultations =
+            data.consultations || [];
+
+
+        const consultation =
+            consultations.find(
+                c =>
+                    c.id == roomId
+            );
+
+
+        if (
+            !consultation ||
+            !consultation.prescription ||
+            consultation.prescription.length === 0
+        ) {
+
+            return;
+
+        }
+
+
+        displayPrescription(
+            consultation.prescription
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Prescription check error:",
+            error
+        );
+
+    }
+
+}
+
+
+// =========================================
+// DISPLAY PRESCRIPTION
+// =========================================
+
+function displayPrescription(
+    prescription
+) {
+
+    const list =
+        document.getElementById(
+            "prescriptionList"
+        );
+
+
+    list.innerHTML = "";
+
+
+    prescription.forEach(
+        medicine => {
+
+            const card =
+                document.createElement("div");
+
+            card.className =
+                "medicine-card";
+
+
+            card.innerHTML = `
+
+                <strong>
+                    ${medicine.name}
+                </strong>
+
+                <br><br>
+
+                <b>Dosage:</b>
+                ${medicine.dosage || "Not specified"}
+
+                <br>
+
+                <b>Quantity:</b>
+                ${medicine.quantity}
+
+                <br>
+
+                <b>Instructions:</b>
+                ${medicine.instructions || "None"}
+
+            `;
+
+
+            list.appendChild(card);
+
+        }
+    );
+
+}
+
+
+// =========================================
+// DISPENSE MEDICINES
+// =========================================
+
+async function dispenseMedicines() {
+
+    if (role !== "patient") {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `/consultation/${roomId}/dispense`,
+                {
+                    method: "POST"
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!data.success) {
+
+            alert(
+                data.message ||
+                "Could not request dispensing."
+            );
+
+            return;
+
+        }
+
+
+        alert(
+            "✅ Dispensing request sent to the ATM!"
+        );
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Could not connect to the ATM server."
+        );
+
+    }
+
+}
+
+
+// =========================================
+// CHECK PRESCRIPTION EVERY 2 SECONDS
+// =========================================
+
+if (role === "patient") {
+
+    setInterval(
+        checkPrescription,
+        2000
+    );
+
+}
 
 
 // =========================================
@@ -394,9 +705,9 @@ function endCall() {
 
         localStream
             .getTracks()
-            .forEach(track => {
-                track.stop();
-            });
+            .forEach(
+                track => track.stop()
+            );
 
         localStream = null;
     }
@@ -411,8 +722,8 @@ function endCall() {
 
 
     localVideo.srcObject = null;
-    remoteVideo.srcObject = null;
 
+    remoteVideo.srcObject = null;
 
     statusText.textContent =
         "Call ended.";
@@ -420,6 +731,8 @@ function endCall() {
 }
 
 
-// Make functions available to HTML buttons
 window.startCall = startCall;
 window.endCall = endCall;
+window.addMedicine = addMedicine;
+window.savePrescription = savePrescription;
+window.dispenseMedicines = dispenseMedicines;
