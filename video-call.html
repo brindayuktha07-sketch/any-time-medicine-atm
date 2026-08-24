@@ -2,12 +2,20 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
     <title>Any Time Medicine - Video Consultation</title>
 
     <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             font-family: Arial, sans-serif;
@@ -17,26 +25,57 @@
         }
 
         h1 {
-            margin: 20px;
+            margin: 25px 10px 10px;
+        }
+
+        h2 {
+            margin: 5px 10px 15px;
+        }
+
+        #role {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 10px;
+        }
+
+        #status {
+            margin: 15px;
+            color: #00ff88;
+            font-size: 17px;
         }
 
         #videos {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            align-items: flex-start;
+            gap: 25px;
             flex-wrap: wrap;
             padding: 20px;
+            width: 100%;
+        }
+
+        .video-box {
+            width: 48%;
+            min-width: 350px;
+            max-width: 800px;
+        }
+
+        .video-box h3 {
+            margin: 5px 0 12px;
+            font-size: 20px;
         }
 
         video {
-            width: 45%;
-            max-width: 600px;
+            width: 100%;
+            height: 450px;
+            object-fit: cover;
             background: #222;
             border-radius: 15px;
+            border: 2px solid #333;
         }
 
         button {
-            padding: 12px 25px;
+            padding: 13px 28px;
             margin: 10px;
             border: none;
             border-radius: 8px;
@@ -44,18 +83,27 @@
             font-size: 16px;
         }
 
-        #status {
-            margin: 15px;
-            color: #00ff88;
+        button:hover {
+            opacity: 0.85;
         }
 
-        #role {
-            font-size: 20px;
-            margin: 10px;
+        @media (max-width: 800px) {
+
+            .video-box {
+                width: 95%;
+                min-width: 0;
+            }
+
+            video {
+                height: 300px;
+            }
+
         }
+
     </style>
 
 </head>
+
 
 <body>
 
@@ -69,9 +117,13 @@
         Connecting...
     </div>
 
+
     <div id="videos">
 
-        <div>
+        <!-- YOUR VIDEO -->
+
+        <div class="video-box">
+
             <h3>You</h3>
 
             <video
@@ -80,9 +132,13 @@
                 muted
                 playsinline>
             </video>
+
         </div>
 
-        <div>
+
+        <!-- OTHER PERSON'S VIDEO -->
+
+        <div class="video-box">
 
             <h3 id="otherRole">
                 Other Participant
@@ -98,16 +154,29 @@
 
     </div>
 
-    <button onclick="startCall()">
-        Start Call
-    </button>
 
-    <button onclick="endCall()">
-        End Call
-    </button>
+    <div>
+
+        <button onclick="startCall()">
+            🎥 Start Call
+        </button>
+
+        <button onclick="endCall()">
+            ❌ End Call
+        </button>
+
+    </div>
+
+
+    <!-- Socket.IO -->
 
     <script src="/socket.io/socket.io.js"></script>
+
+
+    <!-- WebRTC -->
+
     <script src="video-call.js"></script>
+
 
 </body>
 
