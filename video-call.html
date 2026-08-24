@@ -2,16 +2,12 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Any Time Medicine - Video Consultation</title>
 
     <style>
-
         * {
             box-sizing: border-box;
         }
@@ -30,17 +26,17 @@
         }
 
         header h1 {
-            margin: 0 0 8px;
+            margin: 0 0 10px;
         }
 
         #role {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
         }
 
         #status {
             text-align: center;
-            padding: 12px;
+            padding: 15px;
             color: #00ff88;
         }
 
@@ -67,14 +63,13 @@
 
         .video-box h3 {
             text-align: center;
-            margin: 8px;
         }
 
         video {
             width: 100%;
-            height: 380px;
+            height: 400px;
             object-fit: cover;
-            background: #000;
+            background: black;
             border-radius: 15px;
         }
 
@@ -82,80 +77,66 @@
             flex: 1;
             min-width: 320px;
             background: white;
-            color: #1f2937;
+            color: #111827;
             padding: 25px;
             border-radius: 15px;
         }
 
-        .prescription-section h2 {
-            margin-top: 0;
-        }
-
         .medicine-row {
-            border: 1px solid #d1d5db;
-            padding: 15px;
+            border: 1px solid #ccc;
+            padding: 12px;
             border-radius: 10px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
-        .medicine-row input {
+        input {
             width: 100%;
             padding: 10px;
             margin: 5px 0;
-            border: 1px solid #d1d5db;
+            border: 1px solid #ccc;
             border-radius: 7px;
-            box-sizing: border-box;
         }
 
         button {
             padding: 12px 20px;
+            margin: 6px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             font-size: 15px;
-            margin: 5px;
         }
 
-        .primary-btn {
+        .primary {
             background: #2563eb;
             color: white;
         }
 
-        .danger-btn {
+        .danger {
             background: #dc2626;
             color: white;
         }
 
-        .add-btn {
+        .add {
             background: #e5e7eb;
-            color: #111827;
         }
 
-        .dispense-btn {
+        .dispense {
             width: 100%;
             background: #16a34a;
             color: white;
-            font-size: 17px;
             font-weight: bold;
-            margin-top: 20px;
+            font-size: 17px;
+        }
+
+        #doctorPrescription {
+            display: none;
         }
 
         #patientPrescription {
             display: none;
         }
 
-        .medicine-card {
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-        }
-
-        .medicine-card strong {
-            font-size: 17px;
-        }
-
-        @media (max-width: 900px) {
+        @media(max-width: 900px) {
 
             .video-section {
                 min-width: 100%;
@@ -172,11 +153,8 @@
             .prescription-section {
                 min-width: 100%;
             }
-
         }
-
     </style>
-
 </head>
 
 
@@ -186,27 +164,26 @@
 
     <h1>Any Time Medicine</h1>
 
-    <div id="role"></div>
+    <div id="role">
+        Loading role...
+    </div>
 
 </header>
 
 
 <div id="status">
-    Connecting...
+    Loading...
 </div>
 
 
 <div class="call-container">
 
 
-    <!-- =========================
-         VIDEO
-    ========================== -->
+    <!-- VIDEO -->
 
     <div class="video-section">
 
         <div class="videos">
-
 
             <div class="video-box">
 
@@ -239,10 +216,10 @@
         </div>
 
 
-        <div style="text-align:center; margin-top:20px;">
+        <div style="text-align:center;">
 
             <button
-                class="primary-btn"
+                class="primary"
                 onclick="startCall()">
 
                 🎥 Start Call
@@ -251,7 +228,7 @@
 
 
             <button
-                class="danger-btn"
+                class="danger"
                 onclick="endCall()">
 
                 ❌ End Call
@@ -263,43 +240,32 @@
     </div>
 
 
-    <!-- =========================
-         DOCTOR PRESCRIPTION
-    ========================== -->
+    <!-- DOCTOR -->
 
     <div
-        class="prescription-section"
-        id="doctorPrescription">
+        id="doctorPrescription"
+        class="prescription-section">
 
         <h2>💊 Prescription</h2>
-
-        <p>
-            Add the medicines to be given
-            to the patient.
-        </p>
-
 
         <div id="medicineList">
 
             <div class="medicine-row">
 
                 <input
-                    type="text"
                     class="medicineName"
                     placeholder="Medicine name">
 
                 <input
-                    type="text"
                     class="medicineDosage"
-                    placeholder="Dosage (e.g. 500 mg)">
+                    placeholder="Dosage">
 
                 <input
-                    type="number"
                     class="medicineQuantity"
+                    type="number"
                     placeholder="Quantity">
 
                 <input
-                    type="text"
                     class="medicineInstructions"
                     placeholder="Instructions">
 
@@ -309,7 +275,7 @@
 
 
         <button
-            class="add-btn"
+            class="add"
             onclick="addMedicine()">
 
             + Add Medicine
@@ -317,11 +283,8 @@
         </button>
 
 
-        <br>
-
-
         <button
-            class="primary-btn"
+            class="primary"
             onclick="savePrescription()">
 
             Save Prescription
@@ -331,13 +294,11 @@
     </div>
 
 
-    <!-- =========================
-         PATIENT PRESCRIPTION
-    ========================== -->
+    <!-- PATIENT -->
 
     <div
-        class="prescription-section"
-        id="patientPrescription">
+        id="patientPrescription"
+        class="prescription-section">
 
         <h2>💊 Your Prescription</h2>
 
@@ -351,7 +312,7 @@
 
 
         <button
-            class="dispense-btn"
+            class="dispense"
             onclick="dispenseMedicines()">
 
             💊 DISPENSE MEDICINES
@@ -360,19 +321,12 @@
 
     </div>
 
-
 </div>
 
 
-<!-- Socket.IO -->
-
 <script src="/socket.io/socket.io.js"></script>
 
-
-<!-- WebRTC + Prescription -->
-
 <script src="video-call.js"></script>
-
 
 </body>
 
