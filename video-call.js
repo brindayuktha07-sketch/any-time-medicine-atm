@@ -1,21 +1,70 @@
 const socket = io();
 
-const localVideo = document.getElementById("localVideo");
-const remoteVideo = document.getElementById("remoteVideo");
-const statusText = document.getElementById("status");
+const localVideo =
+    document.getElementById("localVideo");
+
+const remoteVideo =
+    document.getElementById("remoteVideo");
+
+const statusText =
+    document.getElementById("status");
+
+const roleText =
+    document.getElementById("role");
+
+const otherRoleText =
+    document.getElementById("otherRole");
+
+
+/* =========================================
+   GET ROLE + ROOM FROM URL
+========================================= */
+
+const params =
+    new URLSearchParams(window.location.search);
+
+const roomId =
+    params.get("room") || "test-room";
+
+const role =
+    params.get("role") || "patient";
+
+
+/* Display role */
+
+if (role === "doctor") {
+
+    roleText.innerText =
+        "👨‍⚕️ Doctor";
+
+    otherRoleText.innerText =
+        "Patient";
+
+}
+else {
+
+    roleText.innerText =
+        "🧑 Patient";
+
+    otherRoleText.innerText =
+        "Doctor";
+
+}
+
+
+/* =========================================
+   VARIABLES
+========================================= */
 
 let localStream;
 let peerConnection;
-
-const roomId =
-    new URLSearchParams(window.location.search)
-        .get("room") || "test-room";
 
 const configuration = {
 
     iceServers: [
         {
-            urls: "stun:stun.l.google.com:19302"
+            urls:
+                "stun:stun.l.google.com:19302"
         }
     ]
 
@@ -23,7 +72,7 @@ const configuration = {
 
 
 /* =========================================
-   START CAMERA + MICROPHONE
+   START CALL
 ========================================= */
 
 async function startCall() {
@@ -32,16 +81,22 @@ async function startCall() {
 
         localStream =
             await navigator.mediaDevices.getUserMedia({
+
                 video: true,
                 audio: true
+
             });
 
-        localVideo.srcObject = localStream;
+        localVideo.srcObject =
+            localStream;
 
         statusText.innerText =
             "Camera and microphone ready";
 
-        socket.emit("join-room", roomId);
+        socket.emit(
+            "join-room",
+            roomId
+        );
 
     }
 
@@ -64,45 +119,58 @@ async function startCall() {
 function createPeerConnection() {
 
     peerConnection =
-        new RTCPeerConnection(configuration);
-
-
-    // Add our camera + microphone
-    localStream.getTracks().forEach(track => {
-
-        peerConnection.addTrack(
-            track,
-            localStream
+        new RTCPeerConnection(
+            configuration
         );
 
-    });
 
+    /* Add camera + microphone */
 
-    // Receive other person's video
-    peerConnection.ontrack = event => {
+    localStream
+        .getTracks()
+        .forEach(track => {
 
-        remoteVideo.srcObject =
-            event.streams[0];
-
-    };
-
-
-    // ICE candidates
-    peerConnection.onicecandidate = event => {
-
-        if (event.candidate) {
-
-            socket.emit(
-                "ice-candidate",
-                {
-                    roomId: roomId,
-                    candidate: event.candidate
-                }
+            peerConnection.addTrack(
+                track,
+                localStream
             );
 
-        }
+        });
 
-    };
+
+    /* Receive other person's video */
+
+    peerConnection.ontrack =
+        event => {
+
+            remoteVideo.srcObject =
+                event.streams[0];
+
+            statusText.innerText =
+                "Connected 🎥";
+
+        };
+
+
+    /* ICE candidates */
+
+    peerConnection.onicecandidate =
+        event => {
+
+            if (event.candidate) {
+
+                socket.emit(
+                    "ice-candidate",
+                    {
+                        roomId: roomId,
+                        candidate:
+                            event.candidate
+                    }
+                );
+
+            }
+
+        };
 
 }
 
@@ -111,87 +179,109 @@ function createPeerConnection() {
    SOMEONE JOINED
 ========================================= */
 
-socket.on("user-joined", async () => {
+socket.on(
+    "user-joined",
+    async () => {
 
-    statusText.innerText =
-        "Doctor / Patient joined. Connecting...";
+        statusText.innerText =
+            "Other participant joined...";
 
-    createPeerConnection();
-
-
-    const offer =
-        await peerConnection.createOffer();
-
-    await peerConnection.setLocalDescription(
-        offer
-    );
+        createPeerConnection();
 
 
-    socket.emit(
-        "offer",
-        {
-            roomId: roomId,
-            offer: offer
-        }
-    );
+        const offer =
+            await peerConnection
+                .createOffer();
 
-});
+
+        await peerConnection
+            .setLocalDescription(
+                offer
+            );
+
+
+        socket.emit(
+            "offer",
+            {
+                roomId: roomId,
+                offer: offer
+            }
+        );
+
+    }
+);
 
 
 /* =========================================
    RECEIVE OFFER
 ========================================= */
 
-socket.on("offer", async offer => {
+socket.on(
+    "offer",
+    async offer => {
 
-    statusText.innerText =
-        "Incoming video call...";
-
-    createPeerConnection();
-
-
-    await peerConnection.setRemoteDescription(
-        new RTCSessionDescription(offer)
-    );
+        statusText.innerText =
+            "Incoming call...";
 
 
-    const answer =
-        await peerConnection.createAnswer();
-
-    await peerConnection.setLocalDescription(
-        answer
-    );
+        createPeerConnection();
 
 
-    socket.emit(
-        "answer",
-        {
-            roomId: roomId,
-            answer: answer
-        }
-    );
+        await peerConnection
+            .setRemoteDescription(
+                new RTCSessionDescription(
+                    offer
+                )
+            );
 
-});
+
+        const answer =
+            await peerConnection
+                .createAnswer();
+
+
+        await peerConnection
+            .setLocalDescription(
+                answer
+            );
+
+
+        socket.emit(
+            "answer",
+            {
+                roomId: roomId,
+                answer: answer
+            }
+        );
+
+    }
+);
 
 
 /* =========================================
    RECEIVE ANSWER
 ========================================= */
 
-socket.on("answer", async answer => {
+socket.on(
+    "answer",
+    async answer => {
 
-    await peerConnection.setRemoteDescription(
-        new RTCSessionDescription(answer)
-    );
+        await peerConnection
+            .setRemoteDescription(
+                new RTCSessionDescription(
+                    answer
+                )
+            );
 
-    statusText.innerText =
-        "Connected 🎥";
+        statusText.innerText =
+            "Connected 🎥";
 
-});
+    }
+);
 
 
 /* =========================================
-   RECEIVE ICE CANDIDATE
+   RECEIVE ICE
 ========================================= */
 
 socket.on(
@@ -202,9 +292,12 @@ socket.on(
 
             if (peerConnection) {
 
-                await peerConnection.addIceCandidate(
-                    new RTCIceCandidate(candidate)
-                );
+                await peerConnection
+                    .addIceCandidate(
+                        new RTCIceCandidate(
+                            candidate
+                        )
+                    );
 
             }
 
@@ -213,7 +306,7 @@ socket.on(
         catch (error) {
 
             console.error(
-                "ICE candidate error:",
+                "ICE error:",
                 error
             );
 
@@ -233,7 +326,10 @@ function endCall() {
 
         localStream
             .getTracks()
-            .forEach(track => track.stop());
+            .forEach(
+                track =>
+                    track.stop()
+            );
 
     }
 
@@ -244,6 +340,7 @@ function endCall() {
     }
 
     localVideo.srcObject = null;
+
     remoteVideo.srcObject = null;
 
     statusText.innerText =
