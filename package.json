@@ -1,7 +1,6 @@
 {
   "name": "any-time-medicine-atm",
   "version": "1.0.0",
-  "description": "Any Time Medicine ATM",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
