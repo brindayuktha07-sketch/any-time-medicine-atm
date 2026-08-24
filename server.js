@@ -17,33 +17,30 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
-// Serve website files
 app.use(express.static(__dirname));
 
 let consultations = [];
 
 
-/* =========================================
+/* ================================
    HOME
-========================================= */
+================================ */
 
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "index.html"));
 });
 
 
-/* =========================================
-   PATIENT → SEND CONSULTATION
-========================================= */
+/* ================================
+   CONSULTATIONS
+================================ */
 
 app.post("/consultation", (req, res) => {
 
     const consultation = {
         id: Date.now(),
-
         name: req.body.name,
         age: req.body.age,
-
         symptoms: req.body.symptoms,
         medications: req.body.medications,
         allergies: req.body.allergies,
@@ -56,81 +53,61 @@ app.post("/consultation", (req, res) => {
         },
 
         status: "waiting",
-
         createdAt: new Date().toISOString()
     };
 
     consultations.push(consultation);
 
-    console.log(
-        `New consultation from ${consultation.name}`
-    );
+    console.log("New consultation:", consultation);
 
     res.json({
         success: true,
-        consultation: consultation
+        consultation
     });
 });
 
-
-/* =========================================
-   DOCTOR → GET CONSULTATIONS
-========================================= */
 
 app.get("/consultations", (req, res) => {
 
     res.json({
         success: true,
-        consultations: consultations
+        consultations
     });
 
 });
 
 
-/* =========================================
-   DOCTOR → ACCEPT CONSULTATION
-========================================= */
-
 app.post("/consultation/:id/accept", (req, res) => {
 
-    const consultation =
-        consultations.find(
-            c => c.id == req.params.id
-        );
+    const consultation = consultations.find(
+        c => c.id == req.params.id
+    );
 
     if (!consultation) {
-
         return res.status(404).json({
             success: false,
             message: "Consultation not found"
         });
-
     }
 
     consultation.status = "accepted";
 
-    console.log(
-        `Consultation ${consultation.id} accepted`
-    );
-
     res.json({
         success: true,
-        consultation: consultation
+        consultation
     });
-
 });
 
 
-/* =========================================
+/* ================================
    WEBRTC SIGNALING
-========================================= */
+================================ */
 
 io.on("connection", (socket) => {
 
     console.log("User connected:", socket.id);
 
 
-    // User joins a video-call room
     socket.on("join-room", (roomId) => {
 
         socket.join(roomId);
@@ -139,13 +116,17 @@ io.on("connection", (socket) => {
             `${socket.id} joined room ${roomId}`
         );
 
-        // Tell the other person that someone joined
-        socket.to(roomId).emit("user-joined", socket.id);
+        const room = io.sockets.adapter.rooms.get(roomId);
+
+        const numberOfUsers = room ? room.size : 0;
+
+        if (numberOfUsers > 1) {
+            socket.to(roomId).emit("user-joined");
+        }
 
     });
 
 
-    // Send WebRTC offer
     socket.on("offer", ({ roomId, offer }) => {
 
         socket.to(roomId).emit("offer", offer);
@@ -153,7 +134,6 @@ io.on("connection", (socket) => {
     });
 
 
-    // Send WebRTC answer
     socket.on("answer", ({ roomId, answer }) => {
 
         socket.to(roomId).emit("answer", answer);
@@ -161,7 +141,6 @@ io.on("connection", (socket) => {
     });
 
 
-    // Send ICE candidate
     socket.on("ice-candidate", ({ roomId, candidate }) => {
 
         socket.to(roomId).emit(
@@ -172,7 +151,6 @@ io.on("connection", (socket) => {
     });
 
 
-    // User leaves
     socket.on("disconnect", () => {
 
         console.log(
@@ -185,16 +163,16 @@ io.on("connection", (socket) => {
 });
 
 
-/* =========================================
+/* ================================
    SERVER
-========================================= */
+================================ */
 
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, "0.0.0.0", () => {
 
     console.log(
-        `Any Time Medicine ATM server running on port ${PORT}`
+        `Any Time Medicine ATM running on port ${PORT}`
     );
 
 });
