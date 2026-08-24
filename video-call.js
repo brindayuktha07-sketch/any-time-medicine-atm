@@ -1,122 +1,108 @@
 const socket = io();
 
-const localVideo =
-    document.getElementById("localVideo");
-
-const remoteVideo =
-    document.getElementById("remoteVideo");
-
-const statusText =
-    document.getElementById("status");
-
-const roleText =
-    document.getElementById("role");
-
-const otherRoleText =
-    document.getElementById("otherRole");
+const localVideo = document.getElementById("localVideo");
+const remoteVideo = document.getElementById("remoteVideo");
+const statusText = document.getElementById("status");
+const roleText = document.getElementById("role");
+const otherRoleText = document.getElementById("otherRole");
 
 
-/* =========================================
-   GET ROLE + ROOM FROM URL
-========================================= */
+// =========================================
+// GET ROOM + ROLE
+// =========================================
 
-const params =
-    new URLSearchParams(window.location.search);
+const params = new URLSearchParams(window.location.search);
 
-const roomId =
-    params.get("room") || "test-room";
-
-const role =
-    params.get("role") || "patient";
+const roomId = params.get("room") || "test-room";
+const role = params.get("role") || "patient";
 
 
-/* Display role */
+// =========================================
+// DISPLAY ROLE
+// =========================================
 
 if (role === "doctor") {
 
-    roleText.innerText =
-        "👨‍⚕️ Doctor";
+    roleText.textContent = "👨‍⚕️ Doctor";
+    otherRoleText.textContent = "Patient";
 
-    otherRoleText.innerText =
-        "Patient";
+} else {
 
-}
-else {
-
-    roleText.innerText =
-        "🧑 Patient";
-
-    otherRoleText.innerText =
-        "Doctor";
+    roleText.textContent = "🧑 Patient";
+    otherRoleText.textContent = "Doctor";
 
 }
 
 
-/* =========================================
-   VARIABLES
-========================================= */
+// =========================================
+// WEBRTC
+// =========================================
 
-let localStream;
-let peerConnection;
+let localStream = null;
+let peerConnection = null;
+
+let isCaller = false;
 
 const configuration = {
 
     iceServers: [
         {
-            urls:
-                "stun:stun.l.google.com:19302"
+            urls: "stun:stun.l.google.com:19302"
         }
     ]
 
 };
 
 
-/* =========================================
-   START CALL
-========================================= */
+// =========================================
+// START CAMERA
+// =========================================
 
 async function startCall() {
 
     try {
 
+        statusText.textContent =
+            "Requesting camera and microphone...";
+
         localStream =
             await navigator.mediaDevices.getUserMedia({
-
                 video: true,
                 audio: true
-
             });
 
-        localVideo.srcObject =
-            localStream;
+        localVideo.srcObject = localStream;
 
-        statusText.innerText =
-            "Camera and microphone ready";
+        statusText.textContent =
+            "Camera ready. Waiting for other participant...";
 
-        socket.emit(
-            "join-room",
-            roomId
+        // Join the room
+        socket.emit("join-room", roomId);
+
+    } catch (error) {
+
+        console.error(
+            "Camera error:",
+            error
         );
 
-    }
-
-    catch (error) {
-
-        console.error(error);
-
-        statusText.innerText =
-            "Camera/microphone permission denied";
+        statusText.textContent =
+            "Camera or microphone permission denied.";
 
     }
 
 }
 
 
-/* =========================================
-   CREATE PEER CONNECTION
-========================================= */
+// =========================================
+// CREATE PEER CONNECTION
+// =========================================
 
 function createPeerConnection() {
+
+    if (peerConnection) {
+        return;
+    }
 
     peerConnection =
         new RTCPeerConnection(
@@ -124,8 +110,7 @@ function createPeerConnection() {
         );
 
 
-    /* Add camera + microphone */
-
+    // Add local tracks
     localStream
         .getTracks()
         .forEach(track => {
@@ -138,22 +123,31 @@ function createPeerConnection() {
         });
 
 
-    /* Receive other person's video */
-
+    // Receive remote video/audio
     peerConnection.ontrack =
         event => {
 
-            remoteVideo.srcObject =
-                event.streams[0];
+            console.log(
+                "Remote track received"
+            );
 
-            statusText.innerText =
-                "Connected 🎥";
+            if (
+                event.streams &&
+                event.streams[0]
+            ) {
+
+                remoteVideo.srcObject =
+                    event.streams[0];
+
+                statusText.textContent =
+                    "Connected 🎥";
+
+            }
 
         };
 
 
-    /* ICE candidates */
-
+    // ICE candidates
     peerConnection.onicecandidate =
         event => {
 
@@ -163,10 +157,51 @@ function createPeerConnection() {
                     "ice-candidate",
                     {
                         roomId: roomId,
-                        candidate:
-                            event.candidate
+                        candidate: event.candidate
                     }
                 );
+
+            }
+
+        };
+
+
+    // Connection status
+    peerConnection.onconnectionstatechange =
+        () => {
+
+            console.log(
+                "Connection:",
+                peerConnection.connectionState
+            );
+
+            if (
+                peerConnection.connectionState ===
+                "connected"
+            ) {
+
+                statusText.textContent =
+                    "Connected 🎥";
+
+            }
+
+            if (
+                peerConnection.connectionState ===
+                "disconnected"
+            ) {
+
+                statusText.textContent =
+                    "Connection interrupted.";
+
+            }
+
+            if (
+                peerConnection.connectionState ===
+                "failed"
+            ) {
+
+                statusText.textContent =
+                    "Connection failed.";
 
             }
 
@@ -175,138 +210,48 @@ function createPeerConnection() {
 }
 
 
-/* =========================================
-   SOMEONE JOINED
-========================================= */
+// =========================================
+// SERVER SAYS ANOTHER USER JOINED
+// =========================================
 
 socket.on(
     "user-joined",
     async () => {
 
-        statusText.innerText =
-            "Other participant joined...";
+        console.log(
+            "Other participant joined"
+        );
+
+        statusText.textContent =
+            "Other participant joined. Connecting...";
+
+        isCaller = true;
 
         createPeerConnection();
 
 
-        const offer =
-            await peerConnection
-                .createOffer();
+        try {
 
+            const offer =
+                await peerConnection.createOffer();
 
-        await peerConnection
-            .setLocalDescription(
+            await peerConnection.setLocalDescription(
                 offer
             );
 
 
-        socket.emit(
-            "offer",
-            {
-                roomId: roomId,
-                offer: offer
-            }
-        );
-
-    }
-);
-
-
-/* =========================================
-   RECEIVE OFFER
-========================================= */
-
-socket.on(
-    "offer",
-    async offer => {
-
-        statusText.innerText =
-            "Incoming call...";
-
-
-        createPeerConnection();
-
-
-        await peerConnection
-            .setRemoteDescription(
-                new RTCSessionDescription(
-                    offer
-                )
+            socket.emit(
+                "offer",
+                {
+                    roomId: roomId,
+                    offer: offer
+                }
             );
 
-
-        const answer =
-            await peerConnection
-                .createAnswer();
-
-
-        await peerConnection
-            .setLocalDescription(
-                answer
-            );
-
-
-        socket.emit(
-            "answer",
-            {
-                roomId: roomId,
-                answer: answer
-            }
-        );
-
-    }
-);
-
-
-/* =========================================
-   RECEIVE ANSWER
-========================================= */
-
-socket.on(
-    "answer",
-    async answer => {
-
-        await peerConnection
-            .setRemoteDescription(
-                new RTCSessionDescription(
-                    answer
-                )
-            );
-
-        statusText.innerText =
-            "Connected 🎥";
-
-    }
-);
-
-
-/* =========================================
-   RECEIVE ICE
-========================================= */
-
-socket.on(
-    "ice-candidate",
-    async candidate => {
-
-        try {
-
-            if (peerConnection) {
-
-                await peerConnection
-                    .addIceCandidate(
-                        new RTCIceCandidate(
-                            candidate
-                        )
-                    );
-
-            }
-
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
-                "ICE error:",
+                "Offer error:",
                 error
             );
 
@@ -316,9 +261,132 @@ socket.on(
 );
 
 
-/* =========================================
-   END CALL
-========================================= */
+// =========================================
+// RECEIVE OFFER
+// =========================================
+
+socket.on(
+    "offer",
+    async offer => {
+
+        console.log(
+            "Offer received"
+        );
+
+        statusText.textContent =
+            "Incoming video call...";
+
+        createPeerConnection();
+
+
+        try {
+
+            await peerConnection.setRemoteDescription(
+                new RTCSessionDescription(offer)
+            );
+
+
+            const answer =
+                await peerConnection.createAnswer();
+
+
+            await peerConnection.setLocalDescription(
+                answer
+            );
+
+
+            socket.emit(
+                "answer",
+                {
+                    roomId: roomId,
+                    answer: answer
+                }
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Answer error:",
+                error
+            );
+
+        }
+
+    }
+);
+
+
+// =========================================
+// RECEIVE ANSWER
+// =========================================
+
+socket.on(
+    "answer",
+    async answer => {
+
+        console.log(
+            "Answer received"
+        );
+
+        try {
+
+            await peerConnection.setRemoteDescription(
+                new RTCSessionDescription(answer)
+            );
+
+            statusText.textContent =
+                "Connected 🎥";
+
+        } catch (error) {
+
+            console.error(
+                "Answer connection error:",
+                error
+            );
+
+        }
+
+    }
+);
+
+
+// =========================================
+// RECEIVE ICE CANDIDATE
+// =========================================
+
+socket.on(
+    "ice-candidate",
+    async candidate => {
+
+        try {
+
+            if (
+                peerConnection &&
+                peerConnection.remoteDescription
+            ) {
+
+                await peerConnection.addIceCandidate(
+                    new RTCIceCandidate(candidate)
+                );
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "ICE candidate error:",
+                error
+            );
+
+        }
+
+    }
+);
+
+
+// =========================================
+// END CALL
+// =========================================
 
 function endCall() {
 
@@ -326,24 +394,32 @@ function endCall() {
 
         localStream
             .getTracks()
-            .forEach(
-                track =>
-                    track.stop()
-            );
+            .forEach(track => {
+                track.stop();
+            });
 
+        localStream = null;
     }
+
 
     if (peerConnection) {
 
         peerConnection.close();
 
+        peerConnection = null;
     }
 
-    localVideo.srcObject = null;
 
+    localVideo.srcObject = null;
     remoteVideo.srcObject = null;
 
-    statusText.innerText =
-        "Call ended";
+
+    statusText.textContent =
+        "Call ended.";
 
 }
+
+
+// Make functions available to HTML buttons
+window.startCall = startCall;
+window.endCall = endCall;
