@@ -1,16 +1,117 @@
-const doctorForm = document.getElementById("doctorForm");
+async function loadConsultations() {
 
-doctorForm.addEventListener("submit", function (event) {
-    event.preventDefault();
+    try {
 
-    const name = document.getElementById("doctorName").value;
-    const doctorId = document.getElementById("doctorId").value;
+        const response =
+            await fetch("/consultations");
 
-    // Save doctor information on this device
-    localStorage.setItem("userRole", "doctor");
-    localStorage.setItem("doctorName", name);
-    localStorage.setItem("doctorId", doctorId);
+        const data =
+            await response.json();
 
-    // Go to doctor dashboard
-    window.location.href = "doctor-dashboard.html";
-});
+        const consultations =
+            data.consultations || [];
+
+        const container =
+            document.getElementById("consultations");
+
+        if (!container) return;
+
+        container.innerHTML = "";
+
+        consultations
+            .filter(c => c.status === "waiting")
+            .forEach(consultation => {
+
+                const card =
+                    document.createElement("div");
+
+                card.className = "consultation-card";
+
+                card.innerHTML = `
+                    <h3>${consultation.name}</h3>
+
+                    <p>
+                        Age: ${consultation.age}
+                    </p>
+
+                    <p>
+                        Symptoms: ${consultation.symptoms}
+                    </p>
+
+                    <button
+                        onclick="acceptConsultation(${consultation.id})">
+                        Accept Consultation
+                    </button>
+                `;
+
+                container.appendChild(card);
+
+            });
+
+    } catch (error) {
+
+        console.error(
+            "Could not load consultations:",
+            error
+        );
+
+    }
+
+}
+
+
+async function acceptConsultation(id) {
+
+    try {
+
+        const response =
+            await fetch(
+                `/consultation/${id}/accept`,
+                {
+                    method: "POST"
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!data.success) {
+
+            alert(
+                data.message ||
+                "Could not accept consultation."
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * IMPORTANT:
+         * Use the REAL consultation ID
+         * as the video-call room.
+         */
+
+        window.location.href =
+            `video-call.html?room=${id}&role=doctor`;
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Could not connect to server."
+        );
+
+    }
+
+}
+
+
+loadConsultations();
+
+setInterval(
+    loadConsultations,
+    3000
+);
