@@ -1,105 +1,111 @@
-const consultation =
-    JSON.parse(
-        localStorage.getItem("currentConsultation")
-    );
+const consultationId =
+    localStorage.getItem("consultationId");
+
 
 const cancelBtn =
     document.getElementById("cancelBtn");
 
 
+if (cancelBtn) {
+
+    cancelBtn.addEventListener(
+        "click",
+        () => {
+
+            localStorage.removeItem(
+                "consultationId"
+            );
+
+            localStorage.removeItem(
+                "currentConsultation"
+            );
+
+            window.location.href =
+                "patient.html";
+
+        }
+    );
+
+}
+
+
 /* =========================================
-   CANCEL CONSULTATION
-========================================= */
-
-cancelBtn.addEventListener(
-    "click",
-    function () {
-
-        localStorage.removeItem(
-            "currentConsultation"
-        );
-
-        localStorage.removeItem(
-            "consultationId"
-        );
-
-        window.location.href =
-            "patient-dashboard.html";
-
-    }
-);
-
-
-/* =========================================
-   CHECK IF DOCTOR ACCEPTED
+   CHECK CONSULTATION
 ========================================= */
 
 async function checkConsultationStatus() {
 
-    const consultationId =
-        localStorage.getItem(
-            "consultationId"
+    if (!consultationId) {
+
+        console.error(
+            "No consultation ID found."
         );
 
-    if (!consultationId) {
         return;
+
     }
 
 
     try {
 
         const response =
-            await fetch("/consultations");
+            await fetch(
+                "/consultations"
+            );
+
 
         const data =
             await response.json();
+
 
         const consultations =
             data.consultations || [];
 
 
-        const current =
+        const consultation =
             consultations.find(
-                consultation =>
-                    consultation.id ==
-                    consultationId
+                c =>
+                    String(c.id) ===
+                    String(consultationId)
             );
 
 
-        if (!current) {
+        if (!consultation) {
             return;
         }
 
 
-        /* Doctor accepted */
+        /* =====================================
+           DOCTOR ACCEPTED
+        ===================================== */
 
         if (
-            current.status ===
+            consultation.status ===
             "accepted"
         ) {
 
             localStorage.setItem(
                 "currentConsultation",
-                JSON.stringify(current)
+                JSON.stringify(
+                    consultation
+                )
             );
 
 
             /*
-             * Go directly to the
-             * patient side of the video call.
+             * IMPORTANT:
+             * Use the REAL consultation ID.
              */
 
             window.location.href =
-                `video-call.html?room=${current.id}&role=patient`;
+                `video-call.html?room=${consultation.id}&role=patient`;
 
         }
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
-            "Could not check consultation:",
+            "Status check error:",
             error
         );
 
@@ -108,11 +114,8 @@ async function checkConsultationStatus() {
 }
 
 
-/* =========================================
-   CHECK EVERY 2 SECONDS
-========================================= */
-
 checkConsultationStatus();
+
 
 setInterval(
     checkConsultationStatus,
