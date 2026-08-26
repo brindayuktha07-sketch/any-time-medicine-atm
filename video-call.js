@@ -12,10 +12,6 @@ const roomId = params.get("room") || "test-room";
 const role = params.get("role") || "patient";
 
 
-// =========================================
-// ROLE
-// =========================================
-
 if (role === "doctor") {
 
     roleText.textContent = "👨‍⚕️ Doctor";
@@ -29,114 +25,43 @@ if (role === "doctor") {
 }
 
 
-// =========================================
-// PRESCRIPTION PANELS
-// =========================================
-
-const doctorPrescription =
-    document.getElementById("doctorPrescription");
-
-const patientPrescription =
-    document.getElementById("patientPrescription");
-
-
-if (role === "doctor") {
-
-    doctorPrescription.style.display = "block";
-    patientPrescription.style.display = "none";
-
-} else {
-
-    doctorPrescription.style.display = "none";
-    patientPrescription.style.display = "block";
-
-}
-
-
-// =========================================
-// WEBRTC VARIABLES
-// =========================================
-
 let localStream = null;
 let peerConnection = null;
 
-let pendingIceCandidates = [];
-
-let isCallStarted = false;
-
-
-// =========================================
-// STUN SERVER
-// =========================================
 
 const configuration = {
 
     iceServers: [
-
         {
             urls: "stun:stun.l.google.com:19302"
         }
-
     ]
 
 };
 
 
-// =========================================
-// START CALL
-// =========================================
-
 async function startCall() {
-
-    if (isCallStarted) {
-        return;
-    }
-
-    isCallStarted = true;
 
     try {
 
-        statusText.textContent =
-            "Starting camera and microphone...";
-
-
         localStream =
             await navigator.mediaDevices.getUserMedia({
-
                 video: true,
                 audio: true
-
             });
 
-
-        localVideo.srcObject =
-            localStream;
-
+        localVideo.srcObject = localStream;
 
         statusText.textContent =
             "Camera ready. Waiting for other participant...";
 
+        socket.emit("join-room", roomId);
 
-        socket.emit(
-            "join-room",
-            roomId
-        );
+    }
 
+    catch (error) {
 
-        console.log(
-            "Joined room:",
-            roomId
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "Camera/microphone error:",
-            error
-        );
-
-        isCallStarted = false;
+        console.error(error);
 
         statusText.textContent =
             "Camera or microphone permission denied.";
@@ -146,70 +71,198 @@ async function startCall() {
 }
 
 
-// =========================================
-// CREATE PEER CONNECTION
-// =========================================
-
 function createPeerConnection() {
 
     if (peerConnection) {
-        return peerConnection;
+        return;
     }
-
 
     peerConnection =
-        new RTCPeerConnection(
-            configuration
-        );
+        new RTCPeerConnection(configuration);
 
 
-    // Add local camera + microphone
+    localStream
+        .getTracks()
+        .forEach(track => {
 
-    if (localStream) {
-
-        localStream
-            .getTracks()
-            .forEach(track => {
-
-                peerConnection.addTrack(
-                    track,
-                    localStream
-                );
-
-            });
-
-    }
-
-
-    // =====================================
-    // RECEIVE REMOTE VIDEO
-    // =====================================
-
-    peerConnection.ontrack =
-        event => {
-
-            console.log(
-                "REMOTE TRACK RECEIVED"
+            peerConnection.addTrack(
+                track,
+                localStream
             );
 
-
-            if (
-                event.streams &&
-                event.streams.length > 0
-            ) {
-
-                remoteVideo.srcObject =
-                    event.streams[0];
+        });
 
 
-                statusText.textContent =
-                    "Connected 🎥";
+    peerConnection.ontrack = event => {
+
+        if (event.streams && event.streams[0]) {
+
+            remoteVideo.srcObject =
+                event.streams[0];
+
+            statusText.textContent =
+                "Connected 🎥";
+
+        }
+
+    };
+
+
+    peerConnection.onicecandidate =
+        event => {
+
+            if (event.candidate) {
+
+                socket.emit(
+                    "ice-candidate",
+                    {
+                        roomId: roomId,
+                        candidate: event.candidate
+                    }
+                );
 
             }
 
         };
 
+}
 
-    // =====================================
-    // SEND ICE CANDIDATES
-    // =================================
+
+socket.on(
+    "user-joined",
+    async () => {
+
+        statusText.textContent =
+            "Other participant joined. Connecting...";
+
+        createPeerConnection();
+
+
+        const offer =
+            await peerConnection.createOffer();
+
+
+        await peerConnection.setLocalDescription(
+            offer
+        );
+
+
+        socket.emit(
+            "offer",
+            {
+                roomId: roomId,
+                offer: offer
+            }
+        );
+
+    }
+);
+
+
+socket.on(
+    "offer",
+    async offer => {
+
+        statusText.textContent =
+            "Incoming video call...";
+
+        createPeerConnection();
+
+
+        await peerConnection.setRemoteDescription(
+            new RTCSessionDescription(offer)
+        );
+
+
+        const answer =
+            await peerConnection.createAnswer();
+
+
+        await peerConnection.setLocalDescription(
+            answer
+        );
+
+
+        socket.emit(
+            "answer",
+            {
+                roomId: roomId,
+                answer: answer
+            }
+        );
+
+    }
+);
+
+
+socket.on(
+    "answer",
+    async answer => {
+
+        await peerConnection.setRemoteDescription(
+            new RTCSessionDescription(answer)
+        );
+
+        statusText.textContent =
+            "Connected 🎥";
+
+    }
+);
+
+
+socket.on(
+    "ice-candidate",
+    async candidate => {
+
+        try {
+
+            if (peerConnection) {
+
+                await peerConnection.addIceCandidate(
+                    new RTCIceCandidate(candidate)
+                );
+
+            }
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "ICE candidate error:",
+                error
+            );
+
+        }
+
+    }
+);
+
+
+function endCall() {
+
+    if (localStream) {
+
+        localStream
+            .getTracks()
+            .forEach(track => track.stop());
+
+    }
+
+    if (peerConnection) {
+
+        peerConnection.close();
+
+    }
+
+    localVideo.srcObject = null;
+    remoteVideo.srcObject = null;
+
+    statusText.textContent =
+        "Call ended";
+
+}
+
+
+window.startCall = startCall;
+window.endCall = endCall;
