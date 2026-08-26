@@ -26,7 +26,11 @@ let consultations = [];
 ========================================= */
 
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "index.html"));
+
+    res.sendFile(
+        path.join(__dirname, "index.html")
+    );
+
 });
 
 
@@ -37,6 +41,7 @@ app.get("/", (req, res) => {
 app.post("/consultation", (req, res) => {
 
     const consultation = {
+
         id: Date.now(),
 
         name: req.body.name,
@@ -47,29 +52,55 @@ app.post("/consultation", (req, res) => {
         allergies: req.body.allergies,
 
         vitals: {
-            temperature: req.body.vitals?.temperature || "",
-            heartRate: req.body.vitals?.heartRate || "",
-            spo2: req.body.vitals?.spo2 || "",
-            bloodPressure: req.body.vitals?.bloodPressure || ""
+
+            temperature:
+                req.body.vitals?.temperature || "",
+
+            heartRate:
+                req.body.vitals?.heartRate || "",
+
+            spo2:
+                req.body.vitals?.spo2 || "",
+
+            bloodPressure:
+                req.body.vitals?.bloodPressure || ""
+
         },
 
         status: "waiting",
 
+        /* NEW */
         prescription: [],
 
-        createdAt: new Date().toISOString()
+        prescriptionSaved: false,
+
+        dispenseRequested: false,
+
+        createdAt:
+            new Date().toISOString()
+
     };
 
-    consultations.push(consultation);
+
+    consultations.push(
+        consultation
+    );
+
 
     console.log(
         `New consultation from ${consultation.name}`
     );
 
+
     res.json({
+
         success: true,
-        consultation
+
+        consultation:
+            consultation
+
     });
+
 });
 
 
@@ -80,8 +111,12 @@ app.post("/consultation", (req, res) => {
 app.get("/consultations", (req, res) => {
 
     res.json({
+
         success: true,
-        consultations
+
+        consultations:
+            consultations
+
     });
 
 });
@@ -91,117 +126,176 @@ app.get("/consultations", (req, res) => {
    DOCTOR → ACCEPT CONSULTATION
 ========================================= */
 
-app.post("/consultation/:id/accept", (req, res) => {
+app.post(
+    "/consultation/:id/accept",
+    (req, res) => {
 
-    const consultation =
-        consultations.find(
-            c => c.id == req.params.id
+        const consultation =
+            consultations.find(
+                c => c.id == req.params.id
+            );
+
+
+        if (!consultation) {
+
+            return res.status(404).json({
+
+                success: false,
+
+                message:
+                    "Consultation not found"
+
+            });
+
+        }
+
+
+        consultation.status =
+            "accepted";
+
+
+        console.log(
+            `Consultation ${consultation.id} accepted`
         );
 
-    if (!consultation) {
 
-        return res.status(404).json({
-            success: false,
-            message: "Consultation not found"
+        res.json({
+
+            success: true,
+
+            consultation:
+                consultation
+
         });
 
     }
-
-    consultation.status = "accepted";
-
-    res.json({
-        success: true,
-        consultation
-    });
-
-});
+);
 
 
 /* =========================================
    DOCTOR → SAVE PRESCRIPTION
 ========================================= */
 
-app.post("/consultation/:id/prescription", (req, res) => {
+app.post(
+    "/consultation/:id/prescription",
+    (req, res) => {
 
-    const consultation =
-        consultations.find(
-            c => c.id == req.params.id
+        const consultation =
+            consultations.find(
+                c => c.id == req.params.id
+            );
+
+
+        if (!consultation) {
+
+            return res.status(404).json({
+
+                success: false,
+
+                message:
+                    "Consultation not found"
+
+            });
+
+        }
+
+
+        consultation.prescription =
+            req.body.prescription || [];
+
+
+        consultation.prescriptionSaved =
+            true;
+
+
+        console.log(
+            `Prescription saved for consultation ${consultation.id}`
         );
 
-    if (!consultation) {
 
-        return res.status(404).json({
-            success: false,
-            message: "Consultation not found"
+        res.json({
+
+            success: true,
+
+            prescription:
+                consultation.prescription
+
         });
 
     }
-
-    consultation.prescription =
-        req.body.prescription || [];
-
-    consultation.prescriptionSaved = true;
-
-    console.log(
-        `Prescription saved for consultation ${consultation.id}`
-    );
-
-    res.json({
-        success: true,
-        prescription: consultation.prescription
-    });
-
-});
+);
 
 
 /* =========================================
-   PATIENT → DISPENSE MEDICINES
+   PATIENT → REQUEST DISPENSING
 ========================================= */
 
-app.post("/consultation/:id/dispense", (req, res) => {
+app.post(
+    "/consultation/:id/dispense",
+    (req, res) => {
 
-    const consultation =
-        consultations.find(
-            c => c.id == req.params.id
+        const consultation =
+            consultations.find(
+                c => c.id == req.params.id
+            );
+
+
+        if (!consultation) {
+
+            return res.status(404).json({
+
+                success: false,
+
+                message:
+                    "Consultation not found"
+
+            });
+
+        }
+
+
+        if (
+            !consultation.prescription ||
+            consultation.prescription.length === 0
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "No prescription available"
+
+            });
+
+        }
+
+
+        consultation.dispenseRequested =
+            true;
+
+
+        console.log(
+            `Dispensing requested for consultation ${consultation.id}`
         );
 
-    if (!consultation) {
 
-        return res.status(404).json({
-            success: false,
-            message: "Consultation not found"
+        res.json({
+
+            success: true,
+
+            message:
+                "Dispensing request sent to ATM"
+
         });
 
     }
-
-    if (
-        !consultation.prescription ||
-        consultation.prescription.length === 0
-    ) {
-
-        return res.status(400).json({
-            success: false,
-            message: "No prescription available"
-        });
-
-    }
-
-    consultation.dispenseRequested = true;
-
-    console.log(
-        `Dispensing requested for consultation ${consultation.id}`
-    );
-
-    res.json({
-        success: true,
-        message: "Dispensing request sent to ATM"
-    });
-
-});
+);
 
 
 /* =========================================
    WEBRTC SIGNALING
+   DO NOT REMOVE THIS
 ========================================= */
 
 io.on("connection", (socket) => {
@@ -212,47 +306,70 @@ io.on("connection", (socket) => {
     );
 
 
-    socket.on("join-room", (roomId) => {
+    socket.on(
+        "join-room",
+        (roomId) => {
 
-        socket.join(roomId);
+            socket.join(roomId);
 
-        console.log(
-            `${socket.id} joined room ${roomId}`
-        );
 
-        const room =
-            io.sockets.adapter.rooms.get(roomId);
+            console.log(
+                `${socket.id} joined room ${roomId}`
+            );
 
-        const numberOfUsers =
-            room ? room.size : 0;
 
-        if (numberOfUsers > 1) {
+            const room =
+                io.sockets.adapter.rooms.get(
+                    roomId
+                );
+
+
+            const numberOfUsers =
+                room ? room.size : 0;
+
+
+            if (numberOfUsers > 1) {
+
+                socket
+                    .to(roomId)
+                    .emit(
+                        "user-joined"
+                    );
+
+            }
+
+        }
+    );
+
+
+    socket.on(
+        "offer",
+        ({ roomId, offer }) => {
 
             socket
                 .to(roomId)
-                .emit("user-joined");
+                .emit(
+                    "offer",
+                    offer
+                );
 
         }
-
-    });
-
-
-    socket.on("offer", ({ roomId, offer }) => {
-
-        socket
-            .to(roomId)
-            .emit("offer", offer);
-
-    });
+    );
 
 
-    socket.on("answer", ({ roomId, answer }) => {
+    socket.on(
+        "answer",
+        ({ roomId, answer }) => {
 
-        socket
-            .to(roomId)
-            .emit("answer", answer);
+            socket
+                .to(roomId)
+                .emit(
+                    "answer",
+                    answer
+                );
 
-    });
+        }
+    );
 
 
     socket.on(
@@ -270,14 +387,17 @@ io.on("connection", (socket) => {
     );
 
 
-    socket.on("disconnect", () => {
+    socket.on(
+        "disconnect",
+        () => {
 
-        console.log(
-            "User disconnected:",
-            socket.id
-        );
+            console.log(
+                "User disconnected:",
+                socket.id
+            );
 
-    });
+        }
+    );
 
 });
 
@@ -288,6 +408,7 @@ io.on("connection", (socket) => {
 
 const PORT =
     process.env.PORT || 3000;
+
 
 server.listen(
     PORT,
