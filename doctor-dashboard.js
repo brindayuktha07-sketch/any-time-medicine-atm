@@ -137,7 +137,7 @@ async function checkForPatient() {
 
                     // Open video call
                     window.location.href =
-                        'video-call.html?room=${consultaton.id}&role=doctor';
+                        `video-call.html?room=${consultation.id}&role=doctor`;
 
                 } catch (error) {
 
