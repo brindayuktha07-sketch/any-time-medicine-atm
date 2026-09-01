@@ -209,6 +209,26 @@ body.high-contrast .history-card p {
                 alert("Medical History will be available here.");
 
             });
+            <script>
+
+        // Display the registered patient's name
+        const patientName =
+            localStorage.getItem("patientName");
+
+        // ... your history code ...
+
+        historyModal.addEventListener(
+            "click",
+            function (event) {
+
+                if (event.target === historyModal) {
+                    historyModal.style.display = "none";
+                }
+
+            }
+        );
+
+    </script>
 
     </script>
 
