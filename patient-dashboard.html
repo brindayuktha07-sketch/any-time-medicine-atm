@@ -9,114 +9,210 @@
 
     <link rel="stylesheet" href="style.css">
 
-<style>
-    /* Use the full available dashboard width */
-    .dashboard-grid {
-        width: 90%;
-        max-width: 1400px;
-        margin: 40px auto;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 50px;
-    }
-
-    /* Large dashboard cards */
-    .dashboard-card {
-        min-height: 360px;
-        padding: 50px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        box-sizing: border-box;
-    }
-
-    .dashboard-card h3 {
-        font-size: 32px;
-        margin-bottom: 20px;
-    }
-
-    .dashboard-card p {
-        font-size: 21px;
-        line-height: 1.6;
-        margin-bottom: 30px;
-    }
-
-    .dashboard-card button {
-        width: 100%;
-        min-height: 70px;
-        font-size: 22px;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-    /* On smaller screens, stack the cards */
-    @media (max-width: 800px) {
+    <style>
+        /* Dashboard layout */
         .dashboard-grid {
             width: 90%;
-            grid-template-columns: 1fr;
-            gap: 30px;
+            max-width: 1400px;
+            margin: 40px auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
         }
 
+        /* Large dashboard cards */
         .dashboard-card {
-            min-height: 320px;
-            padding: 35px;
+            min-height: 360px;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
         }
-    }
-    /* =========================================
-   HIGH CONTRAST MODE
-========================================= */
 
-body.high-contrast {
-    background: #000 !important;
-    color: #fff !important;
-}
+        .dashboard-card h3 {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
 
-body.high-contrast .dashboard-header {
-    background: #000 !important;
-    color: #fff !important;
-    border-bottom: 2px solid #fff;
-}
+        .dashboard-card p {
+            font-size: 21px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
 
-body.high-contrast .dashboard-welcome h2,
-body.high-contrast .dashboard-welcome p {
-    color: #fff !important;
-}
+        .dashboard-card button {
+            width: 100%;
+            min-height: 70px;
+            font-size: 22px;
+            font-weight: 600;
+            cursor: pointer;
+        }
 
-body.high-contrast .dashboard-card {
-    background: #000 !important;
-    color: #fff !important;
-    border: 3px solid #fff !important;
-    box-shadow: none !important;
-}
+        /* =========================================
+           HIGH CONTRAST MODE
+        ========================================= */
 
-body.high-contrast .dashboard-card h3,
-body.high-contrast .dashboard-card p {
-    color: #fff !important;
-}
+        body.high-contrast {
+            background: #000 !important;
+            color: #fff !important;
+        }
 
-body.high-contrast button {
-    background: #ffff00 !important;
-    color: #000 !important;
-    border: 3px solid #fff !important;
-}
+        body.high-contrast .dashboard-header {
+            background: #000 !important;
+            color: #fff !important;
+            border-bottom: 2px solid #fff;
+        }
 
-body.high-contrast .history-box {
-    background: #000 !important;
-    color: #fff !important;
-    border: 3px solid #fff;
-}
+        body.high-contrast .dashboard-welcome h2,
+        body.high-contrast .dashboard-welcome p {
+            color: #fff !important;
+        }
 
-body.high-contrast .history-card {
-    background: #000 !important;
-    color: #fff !important;
-    border: 2px solid #fff !important;
-}
+        body.high-contrast .dashboard-card {
+            background: #000 !important;
+            color: #fff !important;
+            border: 3px solid #fff !important;
+            box-shadow: none !important;
+        }
 
-body.high-contrast .history-card h3,
-body.high-contrast .history-card p {
-    color: #fff !important;
-}
-</style>
+        body.high-contrast .dashboard-card h3,
+        body.high-contrast .dashboard-card p {
+            color: #fff !important;
+        }
+
+        body.high-contrast button {
+            background: #ffff00 !important;
+            color: #000 !important;
+            border: 3px solid #fff !important;
+        }
+
+        body.high-contrast .history-box {
+            background: #000 !important;
+            color: #fff !important;
+            border: 3px solid #fff;
+        }
+
+        body.high-contrast .history-card {
+            background: #000 !important;
+            color: #fff !important;
+            border: 2px solid #fff !important;
+        }
+
+        body.high-contrast .history-card h3,
+        body.high-contrast .history-card p {
+            color: #fff !important;
+        }
+
+        /* =========================================
+           MEDICAL HISTORY POPUP
+        ========================================= */
+
+        .history-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .history-box {
+            background: white;
+            width: 90%;
+            max-width: 850px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border-radius: 20px;
+            padding: 35px;
+            box-sizing: border-box;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .history-header h2 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .close-history {
+            background: none;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        .history-card {
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 22px;
+            margin-bottom: 18px;
+            background: #f8fafc;
+        }
+
+        .history-card h3 {
+            margin-top: 0;
+            font-size: 22px;
+        }
+
+        .history-card p {
+            font-size: 17px;
+            line-height: 1.6;
+            margin: 8px 0;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-accepted {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-waiting {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .no-history,
+        .loading {
+            text-align: center;
+            font-size: 19px;
+            padding: 40px 10px;
+        }
+
+        /* Mobile */
+        @media (max-width: 800px) {
+
+            .dashboard-grid {
+                width: 90%;
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .dashboard-card {
+                min-height: 320px;
+                padding: 35px;
+            }
+        }
+    </style>
 
 </head>
 
@@ -127,8 +223,15 @@ body.high-contrast .history-card p {
         <h1>Any Time Medicine ATM</h1>
 
         <div class="accessibility-controls">
-            <button id="audioGuideBtn">🔊 Audio Guide</button>
-            <button id="contrastBtn">◐ High Contrast</button>
+
+            <button id="audioGuideBtn">
+                🔊 Audio Guide
+            </button>
+
+            <button id="contrastBtn">
+                ◐ High Contrast
+            </button>
+
         </div>
 
     </header>
@@ -138,7 +241,11 @@ body.high-contrast .history-card p {
 
         <section class="dashboard-welcome">
 
-            <h2>Welcome, <span id="patientName"></span> 👋</h2>
+            <h2>
+                Welcome,
+                <span id="patientName"></span>
+                👋
+            </h2>
 
             <p>
                 What would you like to do today?
@@ -148,6 +255,8 @@ body.high-contrast .history-card p {
 
 
         <section class="dashboard-grid">
+
+            <!-- NEW CONSULTATION -->
 
             <div class="dashboard-card">
 
@@ -164,6 +273,8 @@ body.high-contrast .history-card p {
             </div>
 
 
+            <!-- MEDICAL HISTORY -->
+
             <div class="dashboard-card">
 
                 <h3>📋 Medical History</h3>
@@ -178,57 +289,462 @@ body.high-contrast .history-card p {
 
             </div>
 
-
         </section>
 
     </main>
 
 
+    <!-- MEDICAL HISTORY POPUP -->
+
+    <div id="historyModal" class="history-modal">
+
+        <div class="history-box">
+
+            <div class="history-header">
+
+                <h2>📋 Medical History</h2>
+
+                <button
+                    id="closeHistory"
+                    class="close-history">
+                    ×
+                </button>
+
+            </div>
+
+            <div id="historyContent">
+
+                <div class="loading">
+                    Loading your medical history...
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
     <script>
 
-        // Display the registered patient's name
-        const patientName = localStorage.getItem("patientName");
+        /* =========================================
+           PATIENT NAME
+        ========================================= */
 
-        document.getElementById("patientName").textContent =
-            patientName || "Patient";
-
-
-        // Start consultation
-        document.getElementById("consultationBtn")
-            .addEventListener("click", function () {
-
-                window.location.href = "consultation.html";
-
-            });
-
-
-        // Medical history
-        document.getElementById("historyBtn")
-            .addEventListener("click", function () {
-
-                alert("Medical History will be available here.");
-
-            });
-            <script>
-
-        // Display the registered patient's name
         const patientName =
             localStorage.getItem("patientName");
 
-        // ... your history code ...
+        document
+            .getElementById("patientName")
+            .textContent = patientName || "Patient";
 
-        historyModal.addEventListener(
+
+        /* =========================================
+           NEW CONSULTATION
+        ========================================= */
+
+        document
+            .getElementById("consultationBtn")
+            .addEventListener("click", function () {
+
+                window.location.href =
+                    "consultation.html";
+
+            });
+
+
+        /* =========================================
+           MEDICAL HISTORY
+        ========================================= */
+
+        const historyBtn =
+            document.getElementById("historyBtn");
+
+        const historyModal =
+            document.getElementById("historyModal");
+
+        const historyContent =
+            document.getElementById("historyContent");
+
+        const closeHistory =
+            document.getElementById("closeHistory");
+
+
+        historyBtn.addEventListener(
             "click",
-            function (event) {
+            async function () {
 
-                if (event.target === historyModal) {
-                    historyModal.style.display = "none";
+                historyModal.style.display = "flex";
+
+                historyContent.innerHTML = `
+                    <div class="loading">
+                        Loading your medical history...
+                    </div>
+                `;
+
+                try {
+
+                    const response =
+                        await fetch("/consultations");
+
+                    const data =
+                        await response.json();
+
+
+                    if (!data.success) {
+                        throw new Error(
+                            "Could not load consultations"
+                        );
+                    }
+
+
+                    const consultations =
+                        data.consultations.filter(
+                            function (consultation) {
+
+                                return consultation.name &&
+                                    consultation.name.toLowerCase() ===
+                                    (patientName || "").toLowerCase();
+
+                            }
+                        );
+
+
+                    if (consultations.length === 0) {
+
+                        historyContent.innerHTML = `
+                            <div class="no-history">
+
+                                <div style="font-size:50px;">
+                                    📋
+                                </div>
+
+                                <p>
+                                    No previous consultations found.
+                                </p>
+
+                                <p>
+                                    Start a consultation to create your medical history.
+                                </p>
+
+                            </div>
+                        `;
+
+                        return;
+                    }
+
+
+                    historyContent.innerHTML =
+                        consultations
+                            .slice()
+                            .reverse()
+                            .map(function (consultation) {
+
+                                const date =
+                                    consultation.createdAt
+                                        ? new Date(
+                                            consultation.createdAt
+                                        ).toLocaleString()
+                                        : "Date unavailable";
+
+
+                                let statusClass =
+                                    "status-waiting";
+
+
+                                if (
+                                    consultation.status ===
+                                    "accepted"
+                                ) {
+
+                                    statusClass =
+                                        "status-accepted";
+
+                                }
+
+
+                                if (
+                                    consultation.status ===
+                                    "completed"
+                                ) {
+
+                                    statusClass =
+                                        "status-completed";
+
+                                }
+
+
+                                return `
+
+                                    <div class="history-card">
+
+                                        <h3>
+                                            Consultation #${consultation.id}
+                                        </h3>
+
+                                        <span class="status ${statusClass}">
+                                            ${consultation.status || "Unknown"}
+                                        </span>
+
+                                        <p>
+                                            <strong>Date:</strong>
+                                            ${date}
+                                        </p>
+
+                                        <p>
+                                            <strong>Symptoms:</strong>
+                                            ${consultation.symptoms || "Not recorded"}
+                                        </p>
+
+                                        <p>
+                                            <strong>Medications:</strong>
+                                            ${consultation.medications || "None"}
+                                        </p>
+
+                                        <p>
+                                            <strong>Allergies:</strong>
+                                            ${consultation.allergies || "None"}
+                                        </p>
+
+                                        <p>
+                                            <strong>Temperature:</strong>
+                                            ${consultation.vitals?.temperature || "Not recorded"}
+                                        </p>
+
+                                        <p>
+                                            <strong>Heart Rate:</strong>
+                                            ${consultation.vitals?.heartRate || "Not recorded"}
+                                        </p>
+
+                                        <p>
+                                            <strong>SpO₂:</strong>
+                                            ${consultation.vitals?.spo2 || "Not recorded"}
+                                        </p>
+
+                                        <p>
+                                            <strong>Blood Pressure:</strong>
+                                            ${consultation.vitals?.bloodPressure || "Not recorded"}
+                                        </p>
+
+                                    </div>
+
+                                `;
+
+                            })
+                            .join("");
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Medical history error:",
+                        error
+                    );
+
+                    historyContent.innerHTML = `
+                        <div class="no-history">
+
+                            <div style="font-size:50px;">
+                                ⚠️
+                            </div>
+
+                            <p>
+                                Unable to load medical history.
+                            </p>
+
+                            <p>
+                                Please try again.
+                            </p>
+
+                        </div>
+                    `;
+
                 }
 
             }
         );
 
-    </script>
+
+        /* =========================================
+           CLOSE HISTORY
+        ========================================= */
+
+        closeHistory.addEventListener(
+            "click",
+            function () {
+
+                historyModal.style.display =
+                    "none";
+
+            }
+        );
+
+
+        historyModal.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target === historyModal
+                ) {
+
+                    historyModal.style.display =
+                        "none";
+
+                }
+
+            }
+        );
+
+
+        /* =========================================
+           AUDIO GUIDE
+        ========================================= */
+
+        const audioGuideBtn =
+            document.getElementById(
+                "audioGuideBtn"
+            );
+
+        let isSpeaking = false;
+
+
+        audioGuideBtn.addEventListener(
+            "click",
+            function () {
+
+                if (isSpeaking) {
+
+                    speechSynthesis.cancel();
+
+                    isSpeaking = false;
+
+                    audioGuideBtn.textContent =
+                        "🔊 Audio Guide";
+
+                    return;
+                }
+
+
+                const text = `
+                    Welcome to Any Time Medicine ATM.
+
+                    You have two options.
+
+                    New Consultation.
+                    Start a secure video consultation with a doctor.
+
+                    Medical History.
+                    View your previous consultations and medical records.
+
+                    Click Start Consultation to begin.
+                    Or click View History to see your previous consultations.
+                `;
+
+
+                const speech =
+                    new SpeechSynthesisUtterance(
+                        text
+                    );
+
+
+                speech.rate = 0.9;
+                speech.pitch = 1;
+
+
+                speech.onstart = function () {
+
+                    isSpeaking = true;
+
+                    audioGuideBtn.textContent =
+                        "⏹ Stop Audio";
+
+                };
+
+
+                speech.onend = function () {
+
+                    isSpeaking = false;
+
+                    audioGuideBtn.textContent =
+                        "🔊 Audio Guide";
+
+                };
+
+
+                speechSynthesis.speak(
+                    speech
+                );
+
+            }
+        );
+
+
+        /* =========================================
+           HIGH CONTRAST
+        ========================================= */
+
+        const contrastBtn =
+            document.getElementById(
+                "contrastBtn"
+            );
+
+
+        /* Restore saved setting */
+
+        if (
+            localStorage.getItem(
+                "highContrast"
+            ) === "true"
+        ) {
+
+            document.body.classList.add(
+                "high-contrast"
+            );
+
+            contrastBtn.textContent =
+                "◐ Normal Contrast";
+
+        }
+
+
+        /* Toggle contrast */
+
+        contrastBtn.addEventListener(
+            "click",
+            function () {
+
+                document.body.classList.toggle(
+                    "high-contrast"
+                );
+
+
+                const enabled =
+                    document.body.classList.contains(
+                        "high-contrast"
+                    );
+
+
+                localStorage.setItem(
+                    "highContrast",
+                    enabled
+                );
+
+
+                if (enabled) {
+
+                    contrastBtn.textContent =
+                        "◐ Normal Contrast";
+
+                } else {
+
+                    contrastBtn.textContent =
+                        "◐ High Contrast";
+
+                }
+
+            }
+        );
 
     </script>
 
