@@ -10,7 +10,10 @@
     <link rel="stylesheet" href="style.css">
 
     <style>
-        /* Dashboard layout */
+        /* =========================================
+           DASHBOARD LAYOUT
+        ========================================= */
+
         .dashboard-grid {
             width: 90%;
             max-width: 1400px;
@@ -20,7 +23,6 @@
             gap: 50px;
         }
 
-        /* Large dashboard cards */
         .dashboard-card {
             min-height: 360px;
             padding: 50px;
@@ -49,60 +51,6 @@
             cursor: pointer;
         }
 
-        /* =========================================
-           HIGH CONTRAST MODE
-        ========================================= */
-
-        body.high-contrast {
-            background: #000 !important;
-            color: #fff !important;
-        }
-
-        body.high-contrast .dashboard-header {
-            background: #000 !important;
-            color: #fff !important;
-            border-bottom: 2px solid #fff;
-        }
-
-        body.high-contrast .dashboard-welcome h2,
-        body.high-contrast .dashboard-welcome p {
-            color: #fff !important;
-        }
-
-        body.high-contrast .dashboard-card {
-            background: #000 !important;
-            color: #fff !important;
-            border: 3px solid #fff !important;
-            box-shadow: none !important;
-        }
-
-        body.high-contrast .dashboard-card h3,
-        body.high-contrast .dashboard-card p {
-            color: #fff !important;
-        }
-
-        body.high-contrast button {
-            background: #ffff00 !important;
-            color: #000 !important;
-            border: 3px solid #fff !important;
-        }
-
-        body.high-contrast .history-box {
-            background: #000 !important;
-            color: #fff !important;
-            border: 3px solid #fff;
-        }
-
-        body.high-contrast .history-card {
-            background: #000 !important;
-            color: #fff !important;
-            border: 2px solid #fff !important;
-        }
-
-        body.high-contrast .history-card h3,
-        body.high-contrast .history-card p {
-            color: #fff !important;
-        }
 
         /* =========================================
            MEDICAL HISTORY POPUP
@@ -198,7 +146,73 @@
             padding: 40px 10px;
         }
 
-        /* Mobile */
+
+        /* =========================================
+           HIGH CONTRAST MODE
+        ========================================= */
+
+        body.high-contrast {
+            background: #000 !important;
+            color: #fff !important;
+        }
+
+        body.high-contrast .dashboard-header {
+            background: #000 !important;
+            color: #fff !important;
+            border-bottom: 2px solid #fff;
+        }
+
+        body.high-contrast .dashboard-welcome h2,
+        body.high-contrast .dashboard-welcome p {
+            color: #fff !important;
+        }
+
+        body.high-contrast .dashboard-card {
+            background: #000 !important;
+            color: #fff !important;
+            border: 3px solid #fff !important;
+            box-shadow: none !important;
+        }
+
+        body.high-contrast .dashboard-card h3,
+        body.high-contrast .dashboard-card p {
+            color: #fff !important;
+        }
+
+        /* BLUE BUTTONS IN HIGH CONTRAST */
+        body.high-contrast button {
+            background: #2864e6 !important;
+            color: #fff !important;
+            border: 3px solid #fff !important;
+        }
+
+        body.high-contrast .dashboard-card button {
+            background: #2864e6 !important;
+            color: #fff !important;
+        }
+
+        body.high-contrast .history-box {
+            background: #000 !important;
+            color: #fff !important;
+            border: 3px solid #fff;
+        }
+
+        body.high-contrast .history-card {
+            background: #000 !important;
+            color: #fff !important;
+            border: 2px solid #fff !important;
+        }
+
+        body.high-contrast .history-card h3,
+        body.high-contrast .history-card p {
+            color: #fff !important;
+        }
+
+
+        /* =========================================
+           MOBILE
+        ========================================= */
+
         @media (max-width: 800px) {
 
             .dashboard-grid {
@@ -216,7 +230,10 @@
 
 </head>
 
+
 <body>
+
+    <!-- HEADER -->
 
     <header class="dashboard-header">
 
@@ -237,6 +254,8 @@
     </header>
 
 
+    <!-- MAIN DASHBOARD -->
+
     <main class="dashboard">
 
         <section class="dashboard-welcome">
@@ -254,13 +273,15 @@
         </section>
 
 
-        <section class="dashboard-grid">
+        <!-- TWO MAIN OPTIONS -->
 
-            <!-- NEW CONSULTATION -->
+        <section class="dashboard-grid">
 
             <div class="dashboard-card">
 
-                <h3>🩺 New Consultation</h3>
+                <h3>
+                    🩺 New Consultation
+                </h3>
 
                 <p>
                     Connect with a doctor through a secure video consultation.
@@ -273,11 +294,11 @@
             </div>
 
 
-            <!-- MEDICAL HISTORY -->
-
             <div class="dashboard-card">
 
-                <h3>📋 Medical History</h3>
+                <h3>
+                    📋 Medical History
+                </h3>
 
                 <p>
                     View your previous consultations and medical records.
@@ -302,7 +323,9 @@
 
             <div class="history-header">
 
-                <h2>📋 Medical History</h2>
+                <h2>
+                    📋 Medical History
+                </h2>
 
                 <button
                     id="closeHistory"
@@ -311,6 +334,7 @@
                 </button>
 
             </div>
+
 
             <div id="historyContent">
 
@@ -336,7 +360,8 @@
 
         document
             .getElementById("patientName")
-            .textContent = patientName || "Patient";
+            .textContent =
+            patientName || "Patient";
 
 
         /* =========================================
@@ -345,12 +370,15 @@
 
         document
             .getElementById("consultationBtn")
-            .addEventListener("click", function () {
+            .addEventListener(
+                "click",
+                function () {
 
-                window.location.href =
-                    "consultation.html";
+                    window.location.href =
+                        "consultation.html";
 
-            });
+                }
+            );
 
 
         /* =========================================
@@ -374,13 +402,15 @@
             "click",
             async function () {
 
-                historyModal.style.display = "flex";
+                historyModal.style.display =
+                    "flex";
 
                 historyContent.innerHTML = `
                     <div class="loading">
                         Loading your medical history...
                     </div>
                 `;
+
 
                 try {
 
@@ -392,9 +422,11 @@
 
 
                     if (!data.success) {
+
                         throw new Error(
                             "Could not load consultations"
                         );
+
                     }
 
 
@@ -403,16 +435,22 @@
                             function (consultation) {
 
                                 return consultation.name &&
-                                    consultation.name.toLowerCase() ===
-                                    (patientName || "").toLowerCase();
+                                    consultation.name
+                                        .toLowerCase() ===
+                                    (
+                                        patientName || ""
+                                    ).toLowerCase();
 
                             }
                         );
 
 
-                    if (consultations.length === 0) {
+                    if (
+                        consultations.length === 0
+                    ) {
 
                         historyContent.innerHTML = `
+
                             <div class="no-history">
 
                                 <div style="font-size:50px;">
@@ -428,9 +466,11 @@
                                 </p>
 
                             </div>
+
                         `;
 
                         return;
+
                     }
 
 
@@ -438,99 +478,101 @@
                         consultations
                             .slice()
                             .reverse()
-                            .map(function (consultation) {
+                            .map(
+                                function (consultation) {
 
-                                const date =
-                                    consultation.createdAt
-                                        ? new Date(
-                                            consultation.createdAt
-                                        ).toLocaleString()
-                                        : "Date unavailable";
-
-
-                                let statusClass =
-                                    "status-waiting";
+                                    const date =
+                                        consultation.createdAt
+                                            ? new Date(
+                                                consultation.createdAt
+                                            ).toLocaleString()
+                                            : "Date unavailable";
 
 
-                                if (
-                                    consultation.status ===
-                                    "accepted"
-                                ) {
+                                    let statusClass =
+                                        "status-waiting";
 
-                                    statusClass =
-                                        "status-accepted";
+
+                                    if (
+                                        consultation.status ===
+                                        "accepted"
+                                    ) {
+
+                                        statusClass =
+                                            "status-accepted";
+
+                                    }
+
+
+                                    if (
+                                        consultation.status ===
+                                        "completed"
+                                    ) {
+
+                                        statusClass =
+                                            "status-completed";
+
+                                    }
+
+
+                                    return `
+
+                                        <div class="history-card">
+
+                                            <h3>
+                                                Consultation #${consultation.id}
+                                            </h3>
+
+                                            <span class="status ${statusClass}">
+                                                ${consultation.status || "Unknown"}
+                                            </span>
+
+                                            <p>
+                                                <strong>Date:</strong>
+                                                ${date}
+                                            </p>
+
+                                            <p>
+                                                <strong>Symptoms:</strong>
+                                                ${consultation.symptoms || "Not recorded"}
+                                            </p>
+
+                                            <p>
+                                                <strong>Medications:</strong>
+                                                ${consultation.medications || "None"}
+                                            </p>
+
+                                            <p>
+                                                <strong>Allergies:</strong>
+                                                ${consultation.allergies || "None"}
+                                            </p>
+
+                                            <p>
+                                                <strong>Temperature:</strong>
+                                                ${consultation.vitals?.temperature || "Not recorded"}
+                                            </p>
+
+                                            <p>
+                                                <strong>Heart Rate:</strong>
+                                                ${consultation.vitals?.heartRate || "Not recorded"}
+                                            </p>
+
+                                            <p>
+                                                <strong>SpO₂:</strong>
+                                                ${consultation.vitals?.spo2 || "Not recorded"}
+                                            </p>
+
+                                            <p>
+                                                <strong>Blood Pressure:</strong>
+                                                ${consultation.vitals?.bloodPressure || "Not recorded"}
+                                            </p>
+
+                                        </div>
+
+                                    `;
 
                                 }
-
-
-                                if (
-                                    consultation.status ===
-                                    "completed"
-                                ) {
-
-                                    statusClass =
-                                        "status-completed";
-
-                                }
-
-
-                                return `
-
-                                    <div class="history-card">
-
-                                        <h3>
-                                            Consultation #${consultation.id}
-                                        </h3>
-
-                                        <span class="status ${statusClass}">
-                                            ${consultation.status || "Unknown"}
-                                        </span>
-
-                                        <p>
-                                            <strong>Date:</strong>
-                                            ${date}
-                                        </p>
-
-                                        <p>
-                                            <strong>Symptoms:</strong>
-                                            ${consultation.symptoms || "Not recorded"}
-                                        </p>
-
-                                        <p>
-                                            <strong>Medications:</strong>
-                                            ${consultation.medications || "None"}
-                                        </p>
-
-                                        <p>
-                                            <strong>Allergies:</strong>
-                                            ${consultation.allergies || "None"}
-                                        </p>
-
-                                        <p>
-                                            <strong>Temperature:</strong>
-                                            ${consultation.vitals?.temperature || "Not recorded"}
-                                        </p>
-
-                                        <p>
-                                            <strong>Heart Rate:</strong>
-                                            ${consultation.vitals?.heartRate || "Not recorded"}
-                                        </p>
-
-                                        <p>
-                                            <strong>SpO₂:</strong>
-                                            ${consultation.vitals?.spo2 || "Not recorded"}
-                                        </p>
-
-                                        <p>
-                                            <strong>Blood Pressure:</strong>
-                                            ${consultation.vitals?.bloodPressure || "Not recorded"}
-                                        </p>
-
-                                    </div>
-
-                                `;
-
-                            })
+                            )
                             .join("");
 
 
@@ -542,6 +584,7 @@
                     );
 
                     historyContent.innerHTML = `
+
                         <div class="no-history">
 
                             <div style="font-size:50px;">
@@ -557,6 +600,7 @@
                             </p>
 
                         </div>
+
                     `;
 
                 }
@@ -566,7 +610,7 @@
 
 
         /* =========================================
-           CLOSE HISTORY
+           CLOSE MEDICAL HISTORY
         ========================================= */
 
         closeHistory.addEventListener(
@@ -623,6 +667,7 @@
                         "🔊 Audio Guide";
 
                     return;
+
                 }
 
 
@@ -652,24 +697,26 @@
                 speech.pitch = 1;
 
 
-                speech.onstart = function () {
+                speech.onstart =
+                    function () {
 
-                    isSpeaking = true;
+                        isSpeaking = true;
 
-                    audioGuideBtn.textContent =
-                        "⏹ Stop Audio";
+                        audioGuideBtn.textContent =
+                            "⏹ Stop Audio";
 
-                };
+                    };
 
 
-                speech.onend = function () {
+                speech.onend =
+                    function () {
 
-                    isSpeaking = false;
+                        isSpeaking = false;
 
-                    audioGuideBtn.textContent =
-                        "🔊 Audio Guide";
+                        audioGuideBtn.textContent =
+                            "🔊 Audio Guide";
 
-                };
+                    };
 
 
                 speechSynthesis.speak(
@@ -690,7 +737,7 @@
             );
 
 
-        /* Restore saved setting */
+        /* Restore saved contrast setting */
 
         if (
             localStorage.getItem(
