@@ -8,6 +8,64 @@
     <title>Doctor Dashboard - Any Time Medicine ATM</title>
 
     <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* =========================================
+           HIGH CONTRAST MODE
+        ========================================= */
+
+        body.high-contrast {
+            background: #000 !important;
+            color: #fff !important;
+        }
+
+        body.high-contrast .dashboard-header {
+            background: #000 !important;
+            color: #fff !important;
+            border-bottom: 2px solid #fff;
+        }
+
+        body.high-contrast .dashboard-header h1 {
+            color: #fff !important;
+        }
+
+        body.high-contrast .dashboard-welcome h2,
+        body.high-contrast .dashboard-welcome p {
+            color: #fff !important;
+        }
+
+        body.high-contrast .dashboard-card {
+            background: #000 !important;
+            color: #fff !important;
+            border: 3px solid #fff !important;
+            box-shadow: none !important;
+        }
+
+        body.high-contrast .dashboard-card h3,
+        body.high-contrast .dashboard-card p {
+            color: #fff !important;
+        }
+
+        /* Keep buttons BLUE */
+        body.high-contrast button {
+            background: #2864e6 !important;
+            color: #fff !important;
+            border: 2px solid #fff !important;
+        }
+
+        body.high-contrast button:hover {
+            background: #1d4ed8 !important;
+        }
+
+        /* =========================================
+           HIGH CONTRAST BUTTON
+        ========================================= */
+
+        #contrastBtn {
+            cursor: pointer;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -17,8 +75,13 @@
         <h1>Any Time Medicine ATM</h1>
 
         <div class="accessibility-controls">
-            <button id="largeTextBtn">🔠 Large Text</button>
-            <button id="contrastBtn">◐ High Contrast</button>
+
+            <!-- Large Text REMOVED -->
+
+            <button id="contrastBtn">
+                ◐ High Contrast
+            </button>
+
         </div>
 
     </header>
@@ -59,6 +122,71 @@
 
 
     <script src="doctor-dashboard.js"></script>
+
+
+    <script>
+
+        /* =========================================
+           HIGH CONTRAST
+        ========================================= */
+
+        const contrastBtn =
+            document.getElementById("contrastBtn");
+
+
+        /* Restore saved setting */
+
+        if (
+            localStorage.getItem("highContrast") === "true"
+        ) {
+
+            document.body.classList.add("high-contrast");
+
+            contrastBtn.textContent =
+                "◐ Normal Contrast";
+
+        }
+
+
+        /* Toggle High Contrast */
+
+        contrastBtn.addEventListener(
+            "click",
+            function () {
+
+                document.body.classList.toggle(
+                    "high-contrast"
+                );
+
+
+                const enabled =
+                    document.body.classList.contains(
+                        "high-contrast"
+                    );
+
+
+                localStorage.setItem(
+                    "highContrast",
+                    enabled
+                );
+
+
+                if (enabled) {
+
+                    contrastBtn.textContent =
+                        "◐ Normal Contrast";
+
+                } else {
+
+                    contrastBtn.textContent =
+                        "◐ High Contrast";
+
+                }
+
+            }
+        );
+
+    </script>
 
 </body>
 
